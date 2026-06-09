@@ -1,4 +1,4 @@
-// Stage 14: Scanner UI
+// Stage 15: Object detection
 import { useState, useEffect, useRef } from 'react'
 import { 
   Mic, 
