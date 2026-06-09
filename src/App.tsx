@@ -1,4 +1,4 @@
-// Stage 10: Wallet queries
+// Stage 11: Staking workflow
 import { useState, useEffect, useRef } from 'react'
 import { 
   Mic, 
