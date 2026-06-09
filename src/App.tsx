@@ -1,4 +1,4 @@
-// Stage 7: Speech Synthesis (TTS)
+// Stage 8: Speech Recognition (STT)
 import { useState, useEffect, useRef } from 'react'
 import { 
   Mic, 
