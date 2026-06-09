@@ -1,4 +1,4 @@
-// Stage 15: Object detection
+// Stage 16: Contract generation
 import { useState, useEffect, useRef } from 'react'
 import { 
   Mic, 
