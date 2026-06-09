@@ -1,4 +1,4 @@
-// Stage 11: Staking workflow
+// Stage 12: Token swaps
 import { useState, useEffect, useRef } from 'react'
 import { 
   Mic, 
