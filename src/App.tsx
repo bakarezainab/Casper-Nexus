@@ -1,4 +1,4 @@
-// Stage 8: Speech Recognition (STT)
+// Stage 9: Command routing
 import { useState, useEffect, useRef } from 'react'
 import { 
   Mic, 
