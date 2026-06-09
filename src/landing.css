@@ -161,7 +161,7 @@
   border-radius: 20px; padding: 2rem; display: flex; flex-direction: column; gap: 1rem;
   transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
 }
-.feature-card:hover { background: var(--card-glow,rgba(255,71,87,0.05)); border-color: rgba(255,255,255,0.12); transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+.feature-card:hover { background: var(--card-glow,rgba(255,71,87,0.05)); border-color: rgba(255,255,255,0.12); transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
 .feature-icon { width: 54px; height: 54px; border-radius: 14px; display: flex; align-items: center; justify-content: center; }
 .feature-title { font-size: 1.05rem; font-weight: 700; color: #fff; }
 .feature-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; }
