@@ -1,4 +1,4 @@
-// Stage 6: Dashboard skeleton
+// Stage 7: Speech Synthesis (TTS)
 import { useState, useEffect, useRef } from 'react'
 import { 
   Mic, 
