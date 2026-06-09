@@ -1,4 +1,4 @@
-// Stage 9: Command routing
+// Stage 10: Wallet queries
 import { useState, useEffect, useRef } from 'react'
 import { 
   Mic, 
