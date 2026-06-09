@@ -1,4 +1,4 @@
-// Stage 16: Contract generation
+// Stage 17: Odra framework
 import { useState, useEffect, useRef } from 'react'
 import { 
   Mic, 
