@@ -1,4 +1,4 @@
-// Stage 12: Token swaps
+// Stage 13: Webcam integrations
 import { useState, useEffect, useRef } from 'react'
 import { 
   Mic, 
