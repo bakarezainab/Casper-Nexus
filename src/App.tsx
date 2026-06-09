@@ -1,4 +1,4 @@
-// Stage 13: Webcam integrations
+// Stage 14: Scanner UI
 import { useState, useEffect, useRef } from 'react'
 import { 
   Mic, 
