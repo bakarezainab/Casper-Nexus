@@ -135,7 +135,7 @@
   color: var(--text-muted); font-size: 0.75rem;
 }
 .scroll-mouse { width: 22px; height: 36px; border: 2px solid rgba(255,255,255,0.2); border-radius: 11px; display: flex; justify-content: center; padding: 4px; }
-.scroll-wheel { width: 4px; height: 8px; background: var(--color-primary); border-radius: 2px; animation: scrollWheel 2s ease-in-out infinite; }
+.scroll-wheel { width: 3px; height: 8px; background: var(--color-primary); border-radius: 2px; animation: scrollWheel 2s ease-in-out infinite; }
 @keyframes scrollWheel { 0%,100%{transform:translateY(0);opacity:1} 50%{transform:translateY(10px);opacity:0.3} }
 
 /* ── SECTIONS ─────────────────────────────── */
