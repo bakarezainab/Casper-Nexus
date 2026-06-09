@@ -779,6 +779,37 @@ pub struct AssetRegistered {
               <span>x402 Micropayment Channel</span>
               <span>{x402Balance.toFixed(2)} CSPR</span>
             </div>
+
+            {/* Mock DeFi & Staking Volume Chart */}
+            <div style={{ marginTop: '0.75rem', borderTop: '1px dashed rgba(255,255,255,0.06)', paddingTop: '0.75rem' }}>
+              <div className="info-row" style={{ marginBottom: '0.5rem' }}>
+                <span>Trading Volume (Trend)</span>
+                <span style={{ color: 'var(--color-accent)', fontSize: '0.75rem', fontFamily: 'var(--font-mono)' }}>+12.4% block change</span>
+              </div>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end', height: '54px', padding: '4px 0' }}>
+                {[30, 45, 25, 60, 55, 75, 40].map((h, i) => (
+                  <div 
+                    key={i} 
+                    style={{ 
+                      flex: 1, 
+                      height: `${h}%`, 
+                      background: 'linear-gradient(to top, var(--color-secondary), var(--color-accent))', 
+                      borderRadius: '3px',
+                      boxShadow: '0 0 8px rgba(0, 210, 211, 0.2)',
+                      transition: 'height 0.3s ease'
+                    }}
+                  ></div>
+                ))}
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginTop: '4px' }}>
+                <span>B-10</span>
+                <span>B-8</span>
+                <span>B-6</span>
+                <span>B-4</span>
+                <span>B-2</span>
+                <span>Live</span>
+              </div>
+            </div>
           </div>
 
           {/* Logs */}
