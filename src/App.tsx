@@ -1,4 +1,4 @@
-// Stage 17: Odra framework
+// Stage 18: RWA NFT minting
 import { useState, useEffect, useRef } from 'react'
 import { 
   Mic, 
