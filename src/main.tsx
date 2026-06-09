@@ -1,10 +1,15 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import { useState } from 'react'
+import ReactDOM from 'react-dom/client'
+import LandingPage from './LandingPage'
+import Dashboard from './Dashboard'
 import './index.css'
-import App from './App.tsx'
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+function Root() {
+  const [view, setView] = useState<'landing' | 'app'>('landing')
+
+  return view === 'landing'
+    ? <LandingPage onLaunchApp={() => setView('app')} />
+    : <Dashboard onBack={() => setView('landing')} />
+}
+
+ReactDOM.createRoot(document.getElementById('root')!).render(<Root />)
