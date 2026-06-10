@@ -1,73 +1,127 @@
-import { ArrowRight, Mic, Camera, Code } from 'lucide-react'
+import { ArrowRight, Mic, Camera, Code, Zap, TrendingUp, Shield } from 'lucide-react'
 
 interface HeroProps {
   onLaunchApp: () => void
   onExplore: () => void
 }
 
+const floatingCards = [
+  { icon: <Mic size={16} />, label: 'Voice Command', value: 'Stake 100 CSPR', color: '#ff4757', delay: '0s' },
+  { icon: <TrendingUp size={16} />, label: 'Delegated', value: '1,200 CSPR', color: '#1dd1a1', delay: '0.6s' },
+  { icon: <Shield size={16} />, label: 'NFT Minted', value: 'RWA Twin #528', color: '#8e44ad', delay: '1.2s' },
+  { icon: <Zap size={16} />, label: 'x402 Balance', value: '4.85 CSPR', color: '#00d2d3', delay: '1.8s' },
+]
+
 export default function Hero({ onLaunchApp, onExplore }: HeroProps) {
   return (
     <section className="hero-section">
-      {/* Background orbs */}
+      {/* Background image layer */}
+      <div className="hero-bg-image" />
+      {/* Gradient vignette over image */}
+      <div className="hero-bg-vignette" />
+
+      {/* Floating ambient orbs */}
       <div className="hero-orb hero-orb-1" />
       <div className="hero-orb hero-orb-2" />
-      <div className="hero-orb hero-orb-3" />
 
-      <div className="hero-content">
-        {/* Badge */}
-        <div className="hero-badge">
-          <span className="hero-badge-dot" />
-          Casper Agentic Buildathon 2026
+      <div className="hero-inner">
+        {/* ── LEFT: Text Column ── */}
+        <div className="hero-left">
+          <div className="hero-badge">
+            <span className="hero-badge-dot" />
+            Casper Agentic Buildathon 2026
+          </div>
+
+          <h1 className="hero-headline">
+            The AI Agent<br />
+            that <span className="hero-headline-accent">Controls</span><br />
+            the Blockchain
+          </h1>
+
+          <p className="hero-subheadline">
+            Casper Nexus fuses <strong>voice commands</strong>, <strong>computer vision</strong>, 
+            and <strong>x402 micropayments</strong> into one autonomous portal — 
+            giving you real-time control over the Casper Network without wallets or extensions.
+          </p>
+
+          <div className="hero-cta-group">
+            <button className="btn-primary-hero" onClick={onLaunchApp}>
+              Launch the App <ArrowRight size={18} />
+            </button>
+            <button className="btn-secondary-hero" onClick={onExplore}>
+              Explore Features
+            </button>
+          </div>
+
+          <div className="hero-trust-bar">
+            <span className="hero-trust-label">Powered by</span>
+            <span className="hero-trust-chip">Casper Testnet</span>
+            <span className="hero-trust-chip">Odra Rust</span>
+            <span className="hero-trust-chip">x402 Protocol</span>
+            <span className="hero-trust-chip">CEP-78 NFT</span>
+          </div>
         </div>
 
-        {/* Main logo mark */}
-        <div className="hero-logo-mark">
-          <div className="hero-logo-ring hero-logo-ring-outer" />
-          <div className="hero-logo-ring hero-logo-ring-middle" />
-          <div className="hero-logo-ring hero-logo-ring-inner" />
-          <div className="hero-logo-core">N</div>
-        </div>
+        {/* ── RIGHT: Visual Panel ── */}
+        <div className="hero-right">
+          {/* Central glow hub */}
+          <div className="hero-visual-hub">
+            <div className="hub-ring hub-ring-1" />
+            <div className="hub-ring hub-ring-2" />
+            <div className="hub-ring hub-ring-3" />
+            <div className="hub-core">
+              <span>N</span>
+            </div>
 
-        {/* Headline */}
-        <h1 className="hero-headline">
-          <span>Speak.</span>
-          <span>See.</span>
-          <span className="hero-headline-accent">Deploy.</span>
-        </h1>
+            {/* Module orbit icons */}
+            <div className="hub-orbit hub-orbit-1"><Mic size={18} /></div>
+            <div className="hub-orbit hub-orbit-2"><Camera size={18} /></div>
+            <div className="hub-orbit hub-orbit-3"><Code size={18} /></div>
+            <div className="hub-orbit hub-orbit-4"><Zap size={18} /></div>
+          </div>
 
-        {/* Subheadline */}
-        <p className="hero-subheadline">
-          Casper Nexus is an autonomous multimodal AI agent that fuses voice commands, 
-          computer vision, and x402 micropayments to let you interact with the 
-          <span className="text-accent"> Casper Network</span> in real time.
-        </p>
+          {/* Live activity cards */}
+          <div className="hero-floating-cards">
+            {floatingCards.map((card, i) => (
+              <div
+                key={i}
+                className="hero-float-card"
+                style={{ animationDelay: card.delay, '--card-accent': card.color } as React.CSSProperties}
+              >
+                <div className="float-card-icon" style={{ color: card.color, background: `${card.color}18` }}>
+                  {card.icon}
+                </div>
+                <div className="float-card-body">
+                  <span className="float-card-label">{card.label}</span>
+                  <span className="float-card-value" style={{ color: card.color }}>{card.value}</span>
+                </div>
+                <div className="float-card-dot" style={{ background: card.color }} />
+              </div>
+            ))}
+          </div>
 
-        {/* CTA Buttons */}
-        <div className="hero-cta-group">
-          <button className="btn-primary-hero" onClick={onLaunchApp}>
-            Launch the App <ArrowRight size={18} />
-          </button>
-          <button className="btn-secondary-hero" onClick={onExplore}>
-            Explore Features
-          </button>
-        </div>
-
-        {/* Feature pills */}
-        <div className="hero-pills">
-          <div className="hero-pill"><Mic size={14} /> Voice Agent</div>
-          <div className="hero-pill"><Camera size={14} /> Vision Scanner</div>
-          <div className="hero-pill"><Code size={14} /> Odra Rust IDE</div>
-          <div className="hero-pill">⚡ x402 Payments</div>
-          <div className="hero-pill">🛡️ CEP-78 NFTs</div>
-          <div className="hero-pill">🔗 Casper Testnet</div>
+          {/* Stats row */}
+          <div className="hero-stats-row">
+            <div className="hero-stat">
+              <span className="hero-stat-val">4.6s</span>
+              <span className="hero-stat-lbl">Block Time</span>
+            </div>
+            <div className="hero-stat-sep" />
+            <div className="hero-stat">
+              <span className="hero-stat-val" style={{ color: '#1dd1a1' }}>Live</span>
+              <span className="hero-stat-lbl">Testnet RPC</span>
+            </div>
+            <div className="hero-stat-sep" />
+            <div className="hero-stat">
+              <span className="hero-stat-val">6</span>
+              <span className="hero-stat-lbl">AI Modules</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <div className="hero-scroll-indicator">
-        <div className="scroll-mouse"><div className="scroll-wheel" /></div>
-        <span>Scroll to explore</span>
-      </div>
+      {/* Bottom fade */}
+      <div className="hero-bottom-fade" />
     </section>
   )
 }
