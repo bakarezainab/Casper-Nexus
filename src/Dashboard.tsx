@@ -86,6 +86,19 @@ function Dashboard({ onBack }: DashboardProps) {
     { id: 'tx-103', action: 'Casper testnet delegation state update', cost: 0.15, hash: 'hash-7a2bd0...', timestamp: '03:17:30' }
   ])
 
+  interface BlockInfo {
+    height: number
+    hash: string
+    txCount: number
+    timestamp: string
+  }
+
+  const [recentBlocks, setRecentBlocks] = useState<BlockInfo[]>([
+    { height: 1489200, hash: 'hash-8a9d1b...', txCount: 4, timestamp: '03:15:00' },
+    { height: 1489201, hash: 'hash-5f0e2d...', txCount: 2, timestamp: '03:15:15' },
+    { height: 1489202, hash: 'hash-7f0bc9...', txCount: 7, timestamp: '03:15:30' }
+  ])
+
   const addBillingEntry = (action: string, cost: number) => {
     setBillingLedger(prev => [
       ...prev,
@@ -153,6 +166,23 @@ pub struct AssetRegistered {
   useEffect(() => {
     transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [transcripts])
+
+  // Periodic block miner simulation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRecentBlocks(prev => {
+        const nextHeight = prev[prev.length - 1].height + 1
+        const newBlock: BlockInfo = {
+          height: nextHeight,
+          hash: `hash-${Math.random().toString(16).substring(2, 8)}...`,
+          txCount: Math.floor(Math.random() * 8) + 1,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+        }
+        return [...prev.slice(1), newBlock]
+      })
+    }, 8000)
+    return () => clearInterval(interval)
+  }, [])
 
   // Web Speech STT Setup
   useEffect(() => {
@@ -862,6 +892,24 @@ pub struct AssetRegistered {
                 <span>B-4</span>
                 <span>B-2</span>
                 <span>Live</span>
+              </div>
+            </div>
+
+            {/* Live Block Explorer */}
+            <div style={{ marginTop: '0.75rem', borderTop: '1px dashed rgba(255,255,255,0.06)', paddingTop: '0.75rem' }}>
+              <div className="info-row" style={{ marginBottom: '0.4rem' }}>
+                <span>Simulated Casper Testnet Blocks</span>
+                <span className="dot" style={{ background: 'var(--color-success)', width: '8px', height: '8px', animation: 'pulseNeon 1.5s infinite' }}></span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                {recentBlocks.map((blk) => (
+                  <div key={blk.height} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.25)', padding: '0.4rem 0.6rem', borderRadius: '6px', fontSize: '0.7rem', fontFamily: 'var(--font-mono)' }}>
+                    <span style={{ color: 'var(--color-primary)', fontWeight: 'bold' }}>#{blk.height}</span>
+                    <span style={{ color: 'var(--text-muted)' }}>{blk.hash}</span>
+                    <span style={{ color: 'var(--color-accent)' }}>{blk.txCount} txs</span>
+                    <span style={{ color: 'var(--text-muted)' }}>{blk.timestamp}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
