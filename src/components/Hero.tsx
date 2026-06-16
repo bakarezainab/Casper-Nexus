@@ -33,7 +33,7 @@ export default function Hero({ onLaunchApp, onExplore }: HeroProps) {
           </div>
 
           <h1 className="hero-headline">
-            The AI Agent<br />
+            Speak. See. Deploy.<br />
             that <span className="hero-headline-accent">Controls</span><br />
             the Blockchain
           </h1>
