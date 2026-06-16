@@ -152,6 +152,19 @@ pub struct AssetRegistered {
   const [isCompiled, setIsCompiled] = useState(false)
   const [nftName, setNftName] = useState('')
   const [isMinting, setIsMinting] = useState(false)
+
+  interface MintedNft {
+    id: number
+    name: string
+    category: string
+    hash: string
+    imageUrl: string
+  }
+
+  const [mintedNfts, setMintedNfts] = useState<MintedNft[]>([
+    { id: 526, name: 'Casper Nexus Twin #526', category: 'Physical Sculpture', hash: 'hash-02ac9f...', imageUrl: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=120&auto=format&fit=crop&q=60' },
+    { id: 527, name: 'Casper Nexus Twin #527', category: 'Odra Flowchart Blueprint', hash: 'hash-5b1280...', imageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&auto=format&fit=crop&q=60' }
+  ])
   
   const videoRef = useRef<HTMLVideoElement>(null)
   const speechRecognitionRef = useRef<any>(null)
@@ -513,6 +526,17 @@ pub struct AssetRegistered {
       
       setTimeout(() => {
         setIsMinting(false)
+        const newNftId = Math.floor(528 + Math.random() * 500)
+        setMintedNfts(prev => [
+          ...prev,
+          {
+            id: newNftId,
+            name: nftName,
+            category: selectedVisionAction === 'nft' ? 'Physical Asset' : 'Blueprint Design',
+            hash: `hash-${Math.random().toString(16).substring(2, 8)}...`,
+            imageUrl: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=120&auto=format&fit=crop&q=60'
+          }
+        ])
         setSelectedVisionAction(null)
         setNftName('')
         setDetectedObjects([])
@@ -786,6 +810,26 @@ pub struct AssetRegistered {
                   </div>
                 </div>
               )}
+
+              {/* NFT Gallery sub-panel */}
+              <div style={{ marginTop: '1.5rem', borderTop: '1px dashed rgba(255,255,255,0.08)', paddingTop: '1.5rem' }}>
+                <h3 style={{ fontSize: '1rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                  <Sparkles size={16} style={{ color: 'var(--color-primary)' }} />
+                  <span>Casper CEP-78 Asset Registry Twin Gallery</span>
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '1rem' }}>
+                  {mintedNfts.map((nft) => (
+                    <div key={nft.id} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: '12px', padding: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      <img src={nft.imageUrl} alt={nft.name} style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '8px' }} />
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+                        <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nft.name}</span>
+                        <span style={{ fontSize: '0.65rem', color: 'var(--color-accent)' }}>{nft.category}</span>
+                        <span style={{ fontSize: '0.6rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>{nft.hash}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
 
