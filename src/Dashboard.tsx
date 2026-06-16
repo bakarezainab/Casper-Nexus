@@ -805,6 +805,23 @@ pub struct AssetRegistered {
                   </button>
                 </div>
               </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', background: 'rgba(0,0,0,0.2)', padding: '0.75rem 1.25rem', borderRadius: '0', borderLeft: '1px solid var(--border-glass)', borderRight: '1px solid var(--border-glass)', fontSize: '0.8rem', fontFamily: 'var(--font-mono)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>Odra Profile:</span>
+                  <select style={{ background: '#0a0a14', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '4px', padding: '2px 6px', fontSize: '0.75rem' }}>
+                    <option>debug</option>
+                    <option>release-wasm</option>
+                  </select>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>LTO:</span>
+                  <input type="checkbox" defaultChecked style={{ accentColor: 'var(--color-primary)' }} />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>Target:</span>
+                  <span style={{ color: 'var(--color-accent)' }}>wasm32-unknown-unknown</span>
+                </div>
+              </div>
               <div className="code-preview-container">
                 <pre className="code-preview"><code>{contractCode}</code></pre>
               </div>
