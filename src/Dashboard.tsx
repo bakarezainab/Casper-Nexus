@@ -819,7 +819,7 @@ pub struct AssetRegistered {
                 </h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '1rem' }}>
                   {mintedNfts.map((nft) => (
-                    <div key={nft.id} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: '12px', padding: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <div key={nft.id} className="nft-gallery-card" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: '12px', padding: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                       <img src={nft.imageUrl} alt={nft.name} style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '8px' }} />
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
                         <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nft.name}</span>
@@ -981,7 +981,7 @@ pub struct AssetRegistered {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                 {recentBlocks.map((blk) => (
-                  <div key={blk.height} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.25)', padding: '0.4rem 0.6rem', borderRadius: '6px', fontSize: '0.7rem', fontFamily: 'var(--font-mono)' }}>
+                  <div key={blk.height} className="live-block-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.25)', padding: '0.4rem 0.6rem', borderRadius: '6px', fontSize: '0.7rem', fontFamily: 'var(--font-mono)' }}>
                     <span style={{ color: 'var(--color-primary)', fontWeight: 'bold' }}>#{blk.height}</span>
                     <span style={{ color: 'var(--text-muted)' }}>{blk.hash}</span>
                     <span style={{ color: 'var(--color-accent)' }}>{blk.txCount} txs</span>
