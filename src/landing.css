@@ -218,3 +218,49 @@
 
 /* ── ACTIVE SECTION NAV ── */
 .navbar-links button.nav-active { color: #fff; background: rgba(255,71,87,0.1); border-radius: 8px; }
+
+/* ── ABOUT RESPONSIVE ── */
+@media(max-width:768px){
+  .about-grid,.about-grid>div{grid-template-columns:1fr!important;display:flex!important;flex-direction:column!important}
+}
+
+/* ── FAQ FOCUS RING ── */
+.faq-btn:focus-visible{outline:2px solid #ff4757;outline-offset:2px;}
+
+/* ── TICKER RESPONSIVE ── */
+@media(max-width:480px){.ticker-item-label{display:none}}
+
+/* ── HERO RESPONSIVE EXTRA ── */
+@media(max-width:640px){
+  .hero-cta-group{flex-direction:column}
+  .hero-cta-group button,.hero-cta-group a{width:100%;justify-content:center}
+  .hero-headline{font-size:2.2rem}
+}
+
+/* ── FEATURE CARD COLOR BORDERS ── */
+.feature-card:nth-child(1){--card-glow:rgba(255,71,87,0.06);} 
+.feature-card:nth-child(2){--card-glow:rgba(0,210,211,0.06);} 
+.feature-card:nth-child(3){--card-glow:rgba(142,68,173,0.06);} 
+.feature-card:nth-child(4){--card-glow:rgba(255,159,67,0.06);} 
+.feature-card:nth-child(5){--card-glow:rgba(29,209,161,0.06);} 
+.feature-card:nth-child(6){--card-glow:rgba(255,71,87,0.06);}
+
+/* ── ABOUT SECTION INNER GRID ── */
+.about-inner-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start}
+@media(max-width:820px){.about-inner-grid{grid-template-columns:1fr}}
+
+/* ── SECTION SMOOTH SCROLL TARGET OFFSET ── */
+section[id]{scroll-margin-top:90px}
+
+/* ── USECASE FEATURED CARD ── */
+.usecase-card:first-child{border-color:rgba(255,71,87,0.15);background:rgba(255,71,87,0.03)}
+
+/* ── GLASSMORPHIC SCROLL BAR LANDING ── */
+.landing-root ::-webkit-scrollbar{width:5px}
+.landing-root ::-webkit-scrollbar-track{background:rgba(255,255,255,0.02)}
+.landing-root ::-webkit-scrollbar-thumb{background:rgba(255,71,87,0.4);border-radius:4px}
+
+/* ── STEP CARD HOVER ── */
+.step-card:hover .step-number{filter:drop-shadow(0 0 12px rgba(255,71,87,0.4))}
+.step-card{transition:background 0.3s}
+.step-card:hover{background:rgba(255,71,87,0.02);border-radius:12px;padding-left:0.75rem}
