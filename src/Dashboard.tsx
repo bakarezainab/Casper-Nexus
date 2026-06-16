@@ -78,6 +78,26 @@ function Dashboard({ onBack }: DashboardProps) {
   const [isScanning, setIsScanning] = useState(false)
   const [detectedObjects, setDetectedObjects] = useState<BoundingBox[]>([])
   const [selectedVisionAction, setSelectedVisionAction] = useState<'contract' | 'nft' | null>(null)
+
+  const [logView, setLogView] = useState<'logs' | 'billing'>('logs')
+  const [billingLedger, setBillingLedger] = useState<any[]>([
+    { id: 'tx-101', action: 'Agent initialization handshake', cost: 0.10, hash: 'hash-f89a2b...', timestamp: '03:15:10' },
+    { id: 'tx-102', action: 'Speech-to-text token translation', cost: 0.05, hash: 'hash-029cba...', timestamp: '03:16:45' },
+    { id: 'tx-103', action: 'Casper testnet delegation state update', cost: 0.15, hash: 'hash-7a2bd0...', timestamp: '03:17:30' }
+  ])
+
+  const addBillingEntry = (action: string, cost: number) => {
+    setBillingLedger(prev => [
+      ...prev,
+      {
+        id: `tx-${Math.floor(100 + Math.random() * 900)}`,
+        action,
+        cost,
+        hash: `hash-${Math.random().toString(16).substring(2, 8)}...`,
+        timestamp: new Date().toLocaleTimeString()
+      }
+    ])
+  }
   
   // Smart Contract States
   const [contractCode, setContractCode] = useState<string>(`// Casper Odra Smart Contract - Auto-Generated from Flowchart Scanner
@@ -232,6 +252,7 @@ pub struct AssetRegistered {
       return next > 0 ? next : 0
     })
     addLog('x402', `Micropayment channel debited ${cost} CSPR for agent query validation.`)
+    addBillingEntry(`NLP query validation: "${text.substring(0, 20)}..."`, cost)
 
     const lowerText = text.toLowerCase()
     let reply = ''
@@ -349,6 +370,15 @@ pub struct AssetRegistered {
     setIsScanning(true)
     addLog('agent', 'Performing deep neural visual inference on camera frame...')
     
+    // x402 billing for visual inference
+    const scanCost = 0.08
+    setX402Balance(prev => {
+      const next = parseFloat((prev - scanCost).toFixed(2))
+      return next > 0 ? next : 0
+    })
+    addLog('x402', `Micropayment channel debited ${scanCost} CSPR for computer vision agent inference.`)
+    addBillingEntry(`Vision scan: ${selectedVisionAction}`, scanCost)
+
     setTimeout(() => {
       setIsScanning(false)
       
@@ -440,6 +470,7 @@ pub struct AssetRegistered {
     
     setTimeout(() => {
       addLog('x402', 'x402 channel debited 0.10 CSPR for generative AI compute.')
+      addBillingEntry('Generative NFT compute', 0.10)
       addLog('casper', 'Signing CEP-78 NFT minting payload on Casper Network...')
       
       setTimeout(() => {
@@ -741,14 +772,29 @@ pub struct AssetRegistered {
 
         {/* Right Side: Ledger Operations & Telemetry */}
         <section className="panel logs-panel">
-          <div className="panel-header">
-            <div className="panel-title">
-              <Terminal size={18} />
-              <span>Chain Metrics & Log Console</span>
+          <div className="panel-header" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'stretch' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div className="panel-title">
+                <Terminal size={18} />
+                <span>Console & Billing</span>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button 
+                  className={`tab-btn ${logView === 'logs' ? 'active' : ''}`} 
+                  onClick={() => setLogView('logs')}
+                  style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem' }}
+                >
+                  Logs
+                </button>
+                <button 
+                  className={`tab-btn ${logView === 'billing' ? 'active' : ''}`} 
+                  onClick={() => setLogView('billing')}
+                  style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem' }}
+                >
+                  x402 Ledger
+                </button>
+              </div>
             </div>
-            <button className="vision-btn" onClick={() => setLogs([])} style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem' }}>
-              Clear Terminal
-            </button>
           </div>
 
           {/* Circular progress visualizer */}
@@ -820,18 +866,39 @@ pub struct AssetRegistered {
             </div>
           </div>
 
-          {/* Logs */}
-          <div className="logs-container">
-            {logs.map((log) => (
-              <div key={log.id} className={`log-entry ${log.tag}`}>
-                <div className="log-meta">
-                  <span className="log-tag">[{log.tag.toUpperCase()}]</span>
-                  <span>{log.timestamp}</span>
+          {/* Logs / Billing Container */}
+          <div className="logs-container" style={{ minHeight: '260px' }}>
+            {logView === 'logs' ? (
+              <>
+                {logs.map((log) => (
+                  <div key={log.id} className={`log-entry ${log.tag}`}>
+                    <div className="log-meta">
+                      <span className="log-tag">[{log.tag.toUpperCase()}]</span>
+                      <span>{log.timestamp}</span>
+                    </div>
+                    <span className="log-text">{log.text}</span>
+                  </div>
+                ))}
+                <div ref={logsEndRef} />
+              </>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '0.8fr 1.5fr 0.8fr 1fr', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.4rem', fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 'bold', fontFamily: 'var(--font-mono)' }}>
+                  <span>ID</span>
+                  <span>ACTION</span>
+                  <span>COST</span>
+                  <span>HASH</span>
                 </div>
-                <span className="log-text">{log.text}</span>
+                {billingLedger.map((item) => (
+                  <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '0.8fr 1.5fr 0.8fr 1fr', fontSize: '0.75rem', fontFamily: 'var(--font-mono)', borderBottom: '1px dashed rgba(255,255,255,0.04)', paddingBottom: '0.4rem' }}>
+                    <span style={{ color: 'var(--color-accent)' }}>{item.id}</span>
+                    <span style={{ color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.action}</span>
+                    <span style={{ color: 'var(--color-primary)' }}>-{item.cost} CSPR</span>
+                    <span style={{ color: 'var(--text-muted)' }}>{item.hash}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-            <div ref={logsEndRef} />
+            )}
           </div>
         </section>
       </div>

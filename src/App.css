@@ -1005,3 +1005,20 @@
 .animate-spin {
   animation: spinBorder 1.5s infinite linear;
 }
+
+/* ── IDE LINE NUMBERS ── */
+.code-preview-inner { display: flex; }
+.code-line-numbers { display: flex; flex-direction: column; gap: 0; padding: 0 0.75rem 0 0; border-right: 1px solid rgba(255,255,255,0.06); margin-right: 1rem; user-select: none; min-width: 28px; text-align: right; }
+.code-line-numbers span { font-family: var(--font-mono); font-size: 0.75rem; color: rgba(255,255,255,0.2); line-height: 1.6; display: block; }
+
+/* ── BILLING LEDGER TABLE ── */
+.billing-table-header { display: grid; grid-template-columns: 0.8fr 1.5fr 0.8fr 1fr; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.4rem; font-size: 0.72rem; color: var(--text-muted); font-weight: 800; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.05em; }
+.billing-table-row { display: grid; grid-template-columns: 0.8fr 1.5fr 0.8fr 1fr; font-size: 0.75rem; font-family: var(--font-mono); border-bottom: 1px dashed rgba(255,255,255,0.04); padding: 0.4rem 0; animation: fadeIn 0.3s ease; }
+
+/* ── BLOCK HEIGHT TICKER ── */
+.status-badge .dot { animation: pulse-dot 4.6s cubic-bezier(0.4,0,0.6,1) infinite; }
+@keyframes pulse-dot { 0%,90%,100%{opacity:1;box-shadow:0 0 8px currentColor} 92%{opacity:0.3;box-shadow:none} 95%{opacity:1;box-shadow:0 0 12px currentColor} }
+
+/* ── PANEL HEADER IMPROVEMENTS ── */
+.app-header .logo-section .casper-logo-symbol { animation: logoPulse 6s ease-in-out infinite; }
+@keyframes logoPulse { 0%,100%{box-shadow:var(--glow-primary)} 50%{box-shadow:0 0 28px rgba(255,71,87,0.7)} }
