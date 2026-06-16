@@ -1044,3 +1044,7 @@
   border-color: rgba(0,210,211,0.3) !important;
   box-shadow: 0 8px 20px rgba(0,210,211,0.15);
 }
+
+/* ── ENHANCED TAB ACTIVE GLOW ── */
+.tab-btn.active { letter-spacing: 0.01em; }
+.tab-btn { font-family: 'Outfit', sans-serif; }
