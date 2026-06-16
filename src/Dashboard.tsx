@@ -684,9 +684,18 @@ pub struct AssetRegistered {
                   {isCameraActive ? (
                     <video ref={videoRef} autoPlay playsInline className="camera-video"></video>
                   ) : (
-                    <div className="camera-placeholder">
-                      <Camera size={44} />
-                      <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem' }}>Viewfinder offline. Click tools on the right to scan.</p>
+                    <div className="camera-placeholder" style={{ position: 'relative' }}>
+                      <svg width="180" height="180" viewBox="0 0 100 100" style={{ animation: 'spinBorder 15s linear infinite', opacity: 0.25, position: 'absolute' }}>
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="var(--color-primary)" strokeWidth="0.5" strokeDasharray="3 3" />
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="var(--color-accent)" strokeWidth="1" />
+                        <path d="M 50 5 L 50 95 M 5 50 L 95 50" stroke="rgba(255,255,255,0.15)" strokeWidth="0.5" />
+                        <circle cx="50" cy="50" r="15" fill="none" stroke="var(--color-secondary)" strokeWidth="0.5" />
+                      </svg>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.55rem', zIndex: 10, textAlign: 'center', padding: '0 2rem' }}>
+                        <Camera size={44} style={{ color: 'var(--color-primary)', filter: 'drop-shadow(0 0 8px var(--color-primary))' }} />
+                        <span style={{ fontSize: '0.78rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#fff', fontWeight: 'bold' }}>Neural viewport ready</span>
+                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Select an asset category on the right, then initiate visual signature mapping.</span>
+                      </div>
                     </div>
                   )}
 
