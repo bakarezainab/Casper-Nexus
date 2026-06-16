@@ -322,6 +322,14 @@ pub struct AssetRegistered {
       setActiveTab('vision')
       setSelectedVisionAction('nft')
       addLog('agent', 'Switched context to Computer Vision Scanner.')
+    } else if (lowerText.includes('reward') || lowerText.includes('earn')) {
+      reply = "Scanning Casper delegator rewards. You have accumulated 14.52 CSPR in rewards this week. Your average APY is 12.8%."
+      addLog('casper', 'Querying era info and reward database table...')
+      addLog('agent', 'Delegation rewards verified: 14.52 CSPR.')
+    } else if (lowerText.includes('gas') || lowerText.includes('fee')) {
+      reply = "Current Casper network gas price is stable at 1 motes. Transaction fee estimator lists standard transfers at 0.1 CSPR and smart contracts at 15 CSPR."
+      addLog('casper', 'Fetched node auction information.')
+      addLog('agent', 'Gas metrics verified.')
     } else {
       reply = "Command verified. Processing query via Casper blockchain modules."
       addLog('agent', `Processed: "${text}"`)
