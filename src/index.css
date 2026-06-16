@@ -136,3 +136,6 @@ body {
 /* ── SELECTION COLOR ── */
 ::selection { background: rgba(255,71,87,0.25); color: #fff; }
 ::-moz-selection { background: rgba(255,71,87,0.25); color: #fff; }
+
+/* ── FOCUS VISIBLE ── */
+:focus-visible { outline: 2px solid rgba(255,71,87,0.6); outline-offset: 2px; border-radius: 4px; }
