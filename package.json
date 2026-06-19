@@ -1,7 +1,9 @@
 {
   "name": "casper-nexus",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Casper Nexus - Agentic AI Portal for Casper Network | Voice + Vision + Odra IDE + x402 Micropayments",
+  "homepage": "https://github.com/bakarezainab/Casper-Nexus",
   "type": "module",
   "scripts": {
     "dev": "vite",
