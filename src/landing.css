@@ -264,3 +264,25 @@ section[id]{scroll-margin-top:90px}
 .step-card:hover .step-number{filter:drop-shadow(0 0 12px rgba(255,71,87,0.4))}
 .step-card{transition:background 0.3s}
 .step-card:hover{background:rgba(255,71,87,0.02);border-radius:12px;padding-left:0.75rem}
+
+/* ── CTA GRADIENT BORDER GLOW ── */
+.cta-section { position: relative; }
+.cta-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(255,71,87,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+/* ── DEPLOY BUTTON PULSE ── */
+.vision-btn.primary {
+  background: linear-gradient(135deg, rgba(255,71,87,0.2), rgba(142,68,173,0.2));
+  border-color: rgba(255,71,87,0.4) !important;
+  animation: deployPulse 3s ease-in-out infinite;
+}
+@keyframes deployPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,71,87,0); }
+  50% { box-shadow: 0 0 12px 3px rgba(255,71,87,0.25); }
+}
+/* ── WALLET CONNECT HOVER ── */
+.navbar-actions button:hover { opacity: 0.9; transform: translateY(-1px); }
