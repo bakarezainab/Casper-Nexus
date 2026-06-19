@@ -1048,3 +1048,16 @@
 /* ── ENHANCED TAB ACTIVE GLOW ── */
 .tab-btn.active { letter-spacing: 0.01em; }
 .tab-btn { font-family: 'Outfit', sans-serif; }
+
+/* ── MOBILE DASHBOARD RESPONSIVE ── */
+@media (max-width: 768px) {
+  .dashboard-grid { grid-template-columns: 1fr !important; }
+  .panel { min-height: auto !important; }
+  .app-header { flex-direction: column; gap: 0.75rem; align-items: flex-start; }
+  .status-badge-container { flex-wrap: wrap; gap: 0.5rem; }
+}
+@media (max-width: 480px) {
+  .tab-btn span { display: none; }
+  .voice-orb { width: 72px !important; height: 72px !important; }
+  .code-preview-container { max-height: 200px; }
+}
