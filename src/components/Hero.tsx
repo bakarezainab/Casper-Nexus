@@ -125,3 +125,4 @@ export default function Hero({ onLaunchApp, onExplore }: HeroProps) {
     </section>
   )
 }
+// Testnet badge added by Hero enhancement commit
