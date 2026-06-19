@@ -885,7 +885,7 @@ pub struct AssetRegistered {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <span style={{ color: 'var(--text-muted)' }}>Target:</span>
-                  <span style={{ color: 'var(--color-accent)' }}>wasm32-unknown-unknown</span>
+                  <span style={{ color: 'var(--color-accent)' }}>wasm32-unknown-unknown</span></div><div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><span style={{ color: 'var(--text-muted)' }}>Est. Gas:</span><span style={{ color: '#ff9f43', fontWeight: 700 }}>~1.2B motes</span>
                 </div>
               </div>
               <div className="code-preview-container">
