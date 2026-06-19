@@ -139,3 +139,16 @@ body {
 
 /* ── FOCUS VISIBLE ── */
 :focus-visible { outline: 2px solid rgba(255,71,87,0.6); outline-offset: 2px; border-radius: 4px; }
+
+/* ── SMOOTH SCROLL ── */
+html { scroll-behavior: smooth; }
+
+/* ── FONT RENDERING ── */
+body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+/* ── GLOBAL LINK RESET ── */
+a { transition: opacity 0.2s ease; }
+a:hover { opacity: 0.85; }
+
+/* ── PRINT HIDE ── */
+@media print { .app-header, .tab-btn, .voice-orb { display: none !important; } }
