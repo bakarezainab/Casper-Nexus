@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getTestnetStatus, type TestnetStatus } from '../services/CasperService'
+import { getTestnetStatus, getPeers, type TestnetStatus } from '../services/CasperService'
 
 export default function TestnetStatusBadge() {
   const [status, setStatus] = useState<TestnetStatus>({
@@ -8,11 +8,20 @@ export default function TestnetStatusBadge() {
     chainName: 'casper-test',
     lastUpdated: '--'
   })
+  const [peersCount, setPeersCount] = useState<number>(0)
 
   useEffect(() => {
     const fetch = async () => {
       const s = await getTestnetStatus()
       setStatus(s)
+      if (s.isConnected) {
+        try {
+          const peers = await getPeers()
+          setPeersCount(peers.length)
+        } catch {
+          setPeersCount(0)
+        }
+      }
     }
     fetch()
     const interval = setInterval(fetch, 10000)
@@ -47,7 +56,7 @@ export default function TestnetStatusBadge() {
       }} />
       <span>
         {status.isConnected
-          ? `Testnet Live · #${status.blockHeight.toLocaleString()}`
+          ? `Testnet Live · #${status.blockHeight.toLocaleString()}${peersCount > 0 ? ` · ${peersCount} peers` : ''}`
           : 'Connecting...'}
       </span>
     </div>
