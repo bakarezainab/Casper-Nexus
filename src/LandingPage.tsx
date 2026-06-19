@@ -10,6 +10,7 @@ import FAQ from './components/FAQ'
 import CTA from './components/CTA'
 import Footer from './components/Footer'
 import ParticleBackground from './components/ParticleBackground'
+import TestnetBlockFeed from './components/TestnetBlockFeed'
 import './landing.css'
 
 interface LandingPageProps {
@@ -52,6 +53,28 @@ export default function LandingPage({ onLaunchApp }: LandingPageProps) {
         <Models />
         <UseCases />
         <About />
+
+        {/* Live Casper Testnet Block Feed — real on-chain data */}
+        <section className="section" id="testnet-feed" style={{ scrollMarginTop: '80px' }}>
+          <div className="section-header">
+            <div className="section-badge">⛓ LIVE TESTNET</div>
+            <h2 className="section-title">Casper Network <span className="text-accent">Live Feed</span></h2>
+            <p className="section-subtitle">
+              Real-time block data directly from <strong>rpc.testnet.casperlabs.io</strong> — no simulation
+            </p>
+          </div>
+          <div style={{
+            maxWidth: '600px',
+            margin: '0 auto',
+            background: 'rgba(255,255,255,0.025)',
+            border: '1px solid rgba(255,255,255,0.06)',
+            borderRadius: '20px',
+            padding: '1.5rem'
+          }}>
+            <TestnetBlockFeed />
+          </div>
+        </section>
+
         <FAQ />
         <CTA onLaunchApp={onLaunchApp} />
       </main>
