@@ -1061,3 +1061,24 @@
   .voice-orb { width: 72px !important; height: 72px !important; }
   .code-preview-container { max-height: 200px; }
 }
+
+/* ── ODRA IDE SYNTAX HIGHLIGHTING TOKENS ── */
+.code-preview { color: #abb2bf; }
+.code-preview .token-keyword { color: #c678dd; }
+.code-preview .token-string { color: #98c379; }
+.code-preview .token-comment { color: #5c6370; font-style: italic; }
+.code-preview .token-type { color: #e5c07b; }
+.code-preview .token-fn { color: #61afef; }
+.code-preview .token-macro { color: #ff4757; font-weight: 700; }
+.code-preview .token-number { color: #d19a66; }
+
+/* ── TOAST CONTAINER SLIDE ── */
+@keyframes toastIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
+
+/* ── CSPR.LIVE LINK HOVER ── */
+.cspr-explorer-link { transition: color 0.2s, opacity 0.2s; }
+.cspr-explorer-link:hover { color: #ff4757 !important; opacity: 1 !important; }
+
+/* ── DEPLOY HASH BANNER ── */
+.deploy-hash-banner { animation: fadeIn 0.5s cubic-bezier(0.4,0,0.2,1); }
