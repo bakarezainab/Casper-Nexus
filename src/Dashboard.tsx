@@ -299,13 +299,13 @@ pub struct AssetRegistered {
     })
     addLog('x402', `Micropayment channel debited ${cost} CSPR for agent query validation.`)
     addBillingEntry(`NLP query validation: "${text.substring(0, 20)}..."`, cost)
-
     const lowerText = text.toLowerCase()
     let reply = ''
 
     if (lowerText.includes('network') || lowerText.includes('peers') || lowerText.includes('validators') || lowerText.includes('status')) {
-      reply = `Casper Testnet is live. The network maintains 100 active validators with a ~4.6 second block time. x402 micropayment channels are open and operational.`
-      addLog('casper', 'Network status queried via real-time RPC.')
+      const latestBlockHeight = recentBlocks[0]?.height ? `#${recentBlocks[0].height.toLocaleString()}` : 'active';
+      reply = `Casper Testnet is live at block height ${latestBlockHeight}. Network status verified via real-time JSON-RPC 2.0. x402 micropayment channels are fully operational.`
+      addLog('casper', `Network status queried via real-time RPC. Latest block: ${latestBlockHeight}`)
     } else
     
     if (lowerText.includes('balance') || lowerText.includes('wallet') || lowerText.includes('funds')) {
