@@ -173,3 +173,20 @@ casper-nexus/
 <p align="center">
   <em>© 2026 Casper Nexus — Built with ❤️ for the Casper Agentic Buildathon</em>
 </p>
+
+---
+
+## ⛓️ On-Chain Activity (Testnet Requirement)
+
+Casper Nexus satisfies the **"transaction-producing on-chain component"** requirement through:
+
+| Action | On-Chain Activity |
+|--------|-------------------|
+| 🦀 Deploy Contract | Submits a real `account_put_deploy` JSON-RPC call to `rpc.testnet.casperlabs.io` |
+| 📊 Block Feed | Polls `chain_get_block` every 9 seconds for live block data |
+| 🌐 Network Status | Calls `info_get_status` for real chain name + block height |
+| 🔗 Explorer Links | Every block & deploy links directly to [testnet.cspr.live](https://testnet.cspr.live) |
+
+**RPC Endpoint**: `https://rpc.testnet.casperlabs.io/rpc`  
+**SDK**: `casper-js-sdk@2.15.4`  
+**Explorer**: [testnet.cspr.live](https://testnet.cspr.live)
