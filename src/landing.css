@@ -286,3 +286,21 @@ section[id]{scroll-margin-top:90px}
 }
 /* ── WALLET CONNECT HOVER ── */
 .navbar-actions button:hover { opacity: 0.9; transform: translateY(-1px); }
+
+/* ── FOOTER HACKATHON BADGE ── */
+.footer-hackathon-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  background: rgba(255,71,87,0.08);
+  border: 1px solid rgba(255,71,87,0.2);
+  border-radius: 20px;
+  font-size: 0.72rem;
+  color: #ff4757;
+  font-weight: 700;
+  margin-top: 0.5rem;
+}
+
+/* ── LIVE TICKER GLOW ── */
+.ticker-val { text-shadow: 0 0 8px rgba(0,210,211,0.4); }
