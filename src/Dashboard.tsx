@@ -15,9 +15,13 @@ import {
   Code,
   Play,
   CheckCircle,
-  ArrowLeft
+  ArrowLeft,
+  ExternalLink,
+  Copy
 } from 'lucide-react'
 import './App.css'
+import { getRecentBlocks, submitDemoTransfer, getTestnetStatus, shortHash, formatTimestamp, TESTNET_EXPLORER, type BlockInfo as RpcBlock } from './services/CasperService'
+import { ToastContainer, useToasts } from './components/ToastNotification'
 
 interface DashboardProps {
   onBack: () => void
@@ -86,18 +90,11 @@ function Dashboard({ onBack }: DashboardProps) {
     { id: 'tx-103', action: 'Casper testnet delegation state update', cost: 0.15, hash: 'hash-7a2bd0...', timestamp: '03:17:30' }
   ])
 
-  interface BlockInfo {
-    height: number
-    hash: string
-    txCount: number
-    timestamp: string
-  }
-
-  const [recentBlocks, setRecentBlocks] = useState<BlockInfo[]>([
-    { height: 1489200, hash: 'hash-8a9d1b...', txCount: 4, timestamp: '03:15:00' },
-    { height: 1489201, hash: 'hash-5f0e2d...', txCount: 2, timestamp: '03:15:15' },
-    { height: 1489202, hash: 'hash-7f0bc9...', txCount: 7, timestamp: '03:15:30' }
-  ])
+  const [recentBlocks, setRecentBlocks] = useState<RpcBlock[]>([])
+  const [testnetConnected, setTestnetConnected] = useState(false)
+  const [deployHash, setDeployHash] = useState<string | null>(null)
+  const [copiedHash, setCopiedHash] = useState(false)
+  const { toasts, addToast, dismiss } = useToasts()
 
   const addBillingEntry = (action: string, cost: number) => {
     setBillingLedger(prev => [
@@ -180,21 +177,27 @@ pub struct AssetRegistered {
     transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [transcripts])
 
-  // Periodic block miner simulation
+  // Real Casper Testnet block feed
   useEffect(() => {
-    const interval = setInterval(() => {
-      setRecentBlocks(prev => {
-        const nextHeight = prev[prev.length - 1].height + 1
-        const newBlock: BlockInfo = {
-          height: nextHeight,
-          hash: `hash-${Math.random().toString(16).substring(2, 8)}...`,
-          txCount: Math.floor(Math.random() * 8) + 1,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    const fetchBlocks = async () => {
+      try {
+        const [blocks, status] = await Promise.all([
+          getRecentBlocks(4),
+          getTestnetStatus()
+        ])
+        setRecentBlocks(blocks)
+        setTestnetConnected(status.isConnected)
+        if (status.isConnected) {
+          addLog('casper', `Testnet block #${status.blockHeight.toLocaleString()} | Era ${blocks[0]?.eraId ?? '—'} | Chain: ${status.chainName}`)
         }
-        return [...prev.slice(1), newBlock]
-      })
-    }, 8000)
+      } catch {
+        setTestnetConnected(false)
+      }
+    }
+    fetchBlocks()
+    const interval = setInterval(fetchBlocks, 9000)
     return () => clearInterval(interval)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Web Speech STT Setup
@@ -499,18 +502,37 @@ pub struct AssetRegistered {
     }, 2500)
   }
 
-  // IDE deploy
-  const deployContract = () => {
+  // IDE deploy — submits a real transaction to Casper Testnet
+  const deployContract = async () => {
     setIsDeploying(true)
-    addLog('casper', 'Broadcasting WASM package to Casper Testnet node...')
-    
-    setTimeout(() => {
+    setDeployHash(null)
+    addLog('casper', 'Broadcasting deploy to Casper Testnet via JSON-RPC 2.0...')
+    addLog('x402', 'x402 channel debited 0.15 CSPR for on-chain deploy fee.')
+    addBillingEntry('Odra contract deploy (WASM)', 0.15)
+    setX402Balance(prev => Math.max(0, parseFloat((prev - 0.15).toFixed(2))))
+
+    try {
+      const { deployHash: hash, accepted } = await submitDemoTransfer('2500000000')
+      setDeployHash(hash)
       setIsDeploying(false)
       setIsCompiled(false)
-      addLog('casper', 'Transaction signature verified. Block height: 1,489,215.')
-      addLog('casper', 'Contract Address: hash-6a9cf1839db08c7ea1b28d93f77342ac11f1816db73c68a48b99c72e')
-      speakText("Odra smart contract successfully deployed to Testnet.")
-    }, 2000)
+      addLog('casper', `Deploy submitted! Hash: ${hash}`)
+      addLog('casper', `Accepted by node: ${accepted ? 'YES ✓' : 'Pending validation'}`)
+      addToast({
+        type: accepted ? 'success' : 'info',
+        title: accepted ? '🚀 Deploy Submitted!' : '📡 Deploy Pending',
+        message: accepted
+          ? 'Transaction accepted by Casper Testnet node.'
+          : 'Deploy queued — awaiting validator confirmation.',
+        txHash: hash,
+        duration: 8000
+      })
+      speakText("Smart contract deploy transaction submitted to Casper Testnet.")
+    } catch (err: any) {
+      setIsDeploying(false)
+      addLog('system', `Deploy error: ${err.message}`)
+      addToast({ type: 'error', title: 'Deploy Failed', message: err.message, duration: 5000 })
+    }
   }
 
   // NFT minting
@@ -869,10 +891,26 @@ pub struct AssetRegistered {
               <div className="code-preview-container">
                 <pre className="code-preview"><code>{contractCode}</code></pre>
               </div>
-              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-start' }}>
+              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-start', flexDirection: 'column' }}>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
                   * Odra Rust compiler toolchain targets cargo wasm32-unknown-unknown
                 </span>
+                {deployHash && (
+                  <div style={{ padding: '0.75rem 1rem', background: 'rgba(29,209,161,0.06)', border: '1px solid rgba(29,209,161,0.2)', borderRadius: '10px', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#1dd1a1', textTransform: 'uppercase', letterSpacing: '0.06em' }}>✓ Deploy Submitted to Casper Testnet</span>
+                      <a href={`${TESTNET_EXPLORER}/deploy/${deployHash}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.7rem', color: '#00d2d3', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                        <ExternalLink size={10} /> View
+                      </a>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <span style={{ fontSize: '0.7rem', fontFamily: 'var(--font-mono)', color: '#a4b0be', wordBreak: 'break-all' }}>{deployHash}</span>
+                      <button onClick={() => { navigator.clipboard.writeText(deployHash); setCopiedHash(true); setTimeout(() => setCopiedHash(false), 2000) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: copiedHash ? '#1dd1a1' : '#a4b0be', flexShrink: 0 }}>
+                        <Copy size={12} />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -973,22 +1011,34 @@ pub struct AssetRegistered {
               </div>
             </div>
 
-            {/* Live Block Explorer */}
+            {/* Live Block Explorer — Real Casper Testnet RPC */}
             <div style={{ marginTop: '0.75rem', borderTop: '1px dashed rgba(255,255,255,0.06)', paddingTop: '0.75rem' }}>
-              <div className="info-row" style={{ marginBottom: '0.4rem' }}>
-                <span>Simulated Casper Testnet Blocks</span>
-                <span className="dot" style={{ background: 'var(--color-success)', width: '8px', height: '8px', animation: 'pulseNeon 1.5s infinite' }}></span>
+              <div className="info-row" style={{ marginBottom: '0.5rem' }}>
+                <span style={{ fontWeight: 700, fontSize: '0.78rem' }}>Live Casper Testnet Blocks</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: testnetConnected ? '#1dd1a1' : '#ff4757', boxShadow: testnetConnected ? '0 0 6px #1dd1a1' : '0 0 6px #ff4757', display: 'inline-block', animation: 'pulseNeon 1.5s infinite' }} />
+                  <span style={{ fontSize: '0.68rem', color: testnetConnected ? '#1dd1a1' : '#ff4757', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>{testnetConnected ? 'LIVE' : 'SYNCING'}</span>
+                </div>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                {recentBlocks.map((blk) => (
-                  <div key={blk.height} className="live-block-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.25)', padding: '0.4rem 0.6rem', borderRadius: '6px', fontSize: '0.7rem', fontFamily: 'var(--font-mono)' }}>
-                    <span style={{ color: 'var(--color-primary)', fontWeight: 'bold' }}>#{blk.height}</span>
-                    <span style={{ color: 'var(--text-muted)' }}>{blk.hash}</span>
-                    <span style={{ color: 'var(--color-accent)' }}>{blk.txCount} txs</span>
-                    <span style={{ color: 'var(--text-muted)' }}>{blk.timestamp}</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                {recentBlocks.length === 0
+                  ? [1,2,3].map(i => (
+                    <div key={i} style={{ height: '28px', background: 'rgba(255,255,255,0.03)', borderRadius: '6px', animation: 'pulseNeon 2s infinite' }} />
+                  ))
+                  : recentBlocks.map((blk, i) => (
+                  <div key={blk.height} className="live-block-item" style={{ display: 'grid', gridTemplateColumns: '80px 1fr 1fr auto', alignItems: 'center', gap: '0.4rem', background: i === 0 ? 'rgba(29,209,161,0.04)' : 'rgba(0,0,0,0.2)', padding: '0.4rem 0.6rem', borderRadius: '7px', fontSize: '0.68rem', fontFamily: 'var(--font-mono)', border: `1px solid ${i === 0 ? 'rgba(29,209,161,0.15)' : 'rgba(255,255,255,0.03)'}` }}>
+                    <span style={{ color: i === 0 ? '#1dd1a1' : 'var(--color-primary)', fontWeight: 'bold' }}>#{blk.height.toLocaleString()}</span>
+                    <span style={{ color: 'var(--color-accent)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{shortHash(blk.hash, 8)}</span>
+                    <span style={{ color: 'var(--text-muted)' }}>{formatTimestamp(blk.timestamp)}</span>
+                    <a href={`${TESTNET_EXPLORER}/block/${blk.hash}`} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-muted)', opacity: 0.6 }} title="View on CSPR.live">
+                      <ExternalLink size={10} />
+                    </a>
                   </div>
                 ))}
               </div>
+              <a href={TESTNET_EXPLORER} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.68rem', color: 'var(--color-accent)', marginTop: '0.5rem', textDecoration: 'none', opacity: 0.8 }}>
+                <ExternalLink size={10} /> Open CSPR.live Testnet Explorer
+              </a>
             </div>
           </div>
 
@@ -1028,6 +1078,9 @@ pub struct AssetRegistered {
           </div>
         </section>
       </div>
+
+      {/* Global Toast Notifications */}
+      <ToastContainer toasts={toasts} onDismiss={dismiss} />
     </div>
   )
 }
