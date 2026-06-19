@@ -59,3 +59,4 @@ export default function CTA({ onLaunchApp }: CTAProps) {
     </section>
   )
 }
+// DoraHacks link integrated for hackathon visibility
