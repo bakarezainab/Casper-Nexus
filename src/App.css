@@ -1082,3 +1082,45 @@
 
 /* ── DEPLOY HASH BANNER ── */
 .deploy-hash-banner { animation: fadeIn 0.5s cubic-bezier(0.4,0,0.2,1); }
+
+/* ── CASPER AI TOOLKIT & MCP HUB ── */
+.ai-toolkit-tab-container {
+  animation: fadeIn 0.4s ease-out;
+}
+
+.mcp-console-terminal {
+  background: #06060c !important;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.8);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: #33ff33;
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-y: auto;
+  max-height: 240px;
+}
+
+.mcp-tool-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-glass);
+  border-radius: 8px;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.mcp-tool-card:hover {
+  background: rgba(0, 210, 211, 0.05);
+  border-color: rgba(0, 210, 211, 0.25);
+  transform: translateY(-2px);
+}
+
+.x402-step-card {
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
