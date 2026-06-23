@@ -22,6 +22,7 @@ import {
 import './App.css'
 import { getRecentBlocks, submitDemoTransfer, getTestnetStatus, shortHash, formatTimestamp, TESTNET_EXPLORER, type BlockInfo as RpcBlock } from './services/CasperService'
 import { ToastContainer, useToasts } from './components/ToastNotification'
+import AiToolkitTab from './components/AiToolkitTab'
 
 interface DashboardProps {
   onBack: () => void
@@ -51,7 +52,7 @@ interface BoundingBox {
 }
 
 function Dashboard({ onBack }: DashboardProps) {
-  const [activeTab, setActiveTab] = useState<'voice' | 'vision' | 'ide'>('voice')
+  const [activeTab, setActiveTab] = useState<'voice' | 'vision' | 'ide' | 'ai-toolkit'>('voice')
   const [isListening, setIsListening] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
@@ -756,6 +757,12 @@ pub struct AssetRegistered {
               >
                 <Code size={16} /> Odra Rust IDE
               </button>
+              <button 
+                className={`tab-btn ${activeTab === 'ai-toolkit' ? 'active' : ''}`}
+                onClick={() => { setActiveTab('ai-toolkit'); stopCamera(); }}
+              >
+                <Cpu size={16} /> AI Toolkit
+              </button>
             </div>
             <div className="panel-title">
               <Cpu size={18} />
@@ -763,6 +770,7 @@ pub struct AssetRegistered {
                 {activeTab === 'voice' && 'Voice Intelligence hub'}
                 {activeTab === 'vision' && 'RWA Viewport Scanner'}
                 {activeTab === 'ide' && 'Smart Contract IDE'}
+                {activeTab === 'ai-toolkit' && 'Casper AI Toolkit & MCP'}
               </span>
             </div>
           </div>
@@ -1047,6 +1055,10 @@ pub struct AssetRegistered {
                 )}
               </div>
             </div>
+          )}
+
+          {activeTab === 'ai-toolkit' && (
+            <AiToolkitTab />
           )}
         </section>
 
