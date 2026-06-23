@@ -24,8 +24,8 @@ const features = [
   },
   {
     icon: <Zap size={28} />,
-    title: 'x402 Micropayments',
-    description: 'Every AI inference and RPC query is settled via HTTP-native x402 micropayments on the Casper Network, making the agent self-funding.',
+    title: 'x402 Micropayments & MCP',
+    description: 'Autonomous AI agent execution settled via x402 payment channels. Interacts with Model Context Protocol (MCP) servers to execute dex/blockchain tools.',
     color: 'var(--color-warning)',
     glow: 'rgba(255,159,67,0.15)',
   },
@@ -53,7 +53,7 @@ export default function Features() {
           <span className="section-tag">Core Capabilities</span>
           <h2 className="section-title">Everything Your Web3 Workflow Needs</h2>
           <p className="section-subtitle">
-            Six powerful modules working as one autonomous agent — voice, vision, code, and on-chain execution.
+            Autonomous AI agent portal powered by the official Casper AI Toolkit, MCP server schemas, and Rust Odra IDE compiler toolchains.
           </p>
         </div>
 
