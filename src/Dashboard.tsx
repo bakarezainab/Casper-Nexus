@@ -1058,7 +1058,14 @@ pub struct AssetRegistered {
           )}
 
           {activeTab === 'ai-toolkit' && (
-            <AiToolkitTab />
+            <AiToolkitTab 
+              walletBalance={walletBalance}
+              setWalletBalance={setWalletBalance}
+              x402Balance={x402Balance}
+              setX402Balance={setX402Balance}
+              addLog={addLog}
+              addBillingEntry={addBillingEntry}
+            />
           )}
         </section>
 
