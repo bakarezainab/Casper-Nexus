@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { HelpCircle, ShieldCheck, Play, Terminal as TerminalIcon, RefreshCw } from 'lucide-react'
+import { HelpCircle, ShieldCheck, Play, Terminal as TerminalIcon, RefreshCw, Database } from 'lucide-react'
+import { getTestnetStatus, getPeers } from '../services/CasperService'
 
 interface AiToolkitTabProps {
   walletBalance: number
@@ -19,6 +20,12 @@ export default function AiToolkitTab({
   addBillingEntry
 }: AiToolkitTabProps) {
   const [activeSubSection, setActiveSubSection] = useState<'x402' | 'mcp' | 'odra'>('x402')
+
+  // MCP Console States
+  const [selectedMcpTool, setSelectedMcpTool] = useState<'GetAccountBalance' | 'get_quote' | 'GetTestnetStatus'>('GetAccountBalance')
+  const [mcpLogs, setMcpLogs] = useState<string[]>([])
+  const [mcpOutput, setMcpOutput] = useState<string>('')
+  const [isExecutingMcp, setIsExecutingMcp] = useState(false)
 
   // x402 State Machine
   const [x402Step, setX402Step] = useState<0 | 1 | 2 | 3 | 4>(0)
@@ -104,6 +111,78 @@ export default function AiToolkitTab({
     setX402Step(0)
     setX402Logs([])
     setLivePriceData(null)
+  }
+
+  const executeMcpCall = async () => {
+    setIsExecutingMcp(true)
+    setMcpLogs([])
+    setMcpOutput('')
+    
+    const toolLogs: string[] = []
+    const logMcp = (msg: string) => {
+      toolLogs.push(`[${new Date().toLocaleTimeString()}] ${msg}`)
+      setMcpLogs([...toolLogs])
+    }
+
+    logMcp(`MCP Client sending payload to local MCP Server...`)
+    logMcp(`Schema: tools/call - Name: ${selectedMcpTool}`)
+
+    setTimeout(async () => {
+      try {
+        if (selectedMcpTool === 'GetTestnetStatus') {
+          logMcp(`Dialing Casper Testnet RPC node at https://rpc.testnet.casperlabs.io/rpc...`)
+          const [status, peers] = await Promise.all([
+            getTestnetStatus(),
+            getPeers()
+          ])
+          logMcp(`Connection established. Status and ${peers.length} active node peers parsed successfully.`)
+          setMcpOutput(JSON.stringify({
+            jsonrpc: "2.0",
+            result: {
+              isConnected: status.isConnected,
+              blockHeight: status.blockHeight,
+              chainName: status.chainName,
+              peer_count: peers.length,
+              peers: peers,
+              lastUpdated: status.lastUpdated
+            },
+            id: 1
+          }, null, 2))
+        } else if (selectedMcpTool === 'GetAccountBalance') {
+          logMcp(`Querying local account parameters & proxy channel context...`)
+          setMcpOutput(JSON.stringify({
+            jsonrpc: "2.0",
+            result: {
+              public_key: "0202d9921473c9f28a7e08920199d9bc37f0bca2d89006e890a5a67c52b217a2db0f",
+              balance: `${walletBalance.toFixed(2)} CSPR`,
+              staked: "1,200.00 CSPR",
+              x402_micropayment_balance: `${x402Balance.toFixed(2)} CSPR`,
+              delegations: 1
+            },
+            id: 1
+          }, null, 2))
+        } else if (selectedMcpTool === 'get_quote') {
+          logMcp(`Dialing CSPR.trade DEX router MCP server...`)
+          logMcp(`Fetching swap routing path: CSPR -> WCSPR -> sCSPR`)
+          setMcpOutput(JSON.stringify({
+            jsonrpc: "2.0",
+            result: {
+              route: "CSPR → WCSPR → sCSPR",
+              amount_in: "10,000 CSPR",
+              amount_out: "9,847.32 sCSPR",
+              price_impact: "0.12%",
+              min_received: "9,552.90 sCSPR",
+              provider: "CSPR.trade"
+            },
+            id: 1
+          }, null, 2))
+        }
+      } catch (err: any) {
+        logMcp(`Error: MCP Tool Call failed. ${err.message}`)
+      } finally {
+        setIsExecutingMcp(false)
+      }
+    }, 1200)
   }
 
   return (
@@ -260,6 +339,80 @@ export default function AiToolkitTab({
                   ) : (
                     x402Logs.map((l, i) => <div key={i} style={{ marginBottom: '0.25rem' }}>{l}</div>)
                   )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeSubSection === 'mcp' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div>
+              <h3 style={{ color: '#fff', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Database size={16} style={{ color: 'var(--color-primary)' }} />
+                <span>Model Context Protocol (MCP) Client Playground</span>
+              </h3>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
+                Run blockchain queries or DEX operations using Model Context Protocol (MCP) standardized tool schemas.
+              </p>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '1.25rem', marginTop: '0.5rem' }}>
+              {/* Left Column: Selector & Trigger */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                <span style={{ fontSize: '0.75rem', color: '#fff', fontWeight: 'bold' }}>Select AI Agent Tool Capability</span>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {[
+                    { id: 'GetAccountBalance', title: 'GetAccountBalance', desc: 'Query Casper token balances and active staking delegations.' },
+                    { id: 'GetTestnetStatus', title: 'GetTestnetStatus', desc: 'Fetch latest Casper network block height and RPC latency metrics.' },
+                    { id: 'get_quote', title: 'get_quote (CSPR.trade)', desc: 'Fetch routing swaps, price impact and quote outcomes for DEX pairs.' }
+                  ].map((t) => (
+                    <div 
+                      key={t.id} 
+                      className="mcp-tool-card" 
+                      onClick={() => setSelectedMcpTool(t.id as any)}
+                      style={{ 
+                        border: selectedMcpTool === t.id ? '1px solid var(--color-primary)' : '1px solid rgba(255,255,255,0.06)',
+                        background: selectedMcpTool === t.id ? 'rgba(255,71,87,0.04)' : 'rgba(255,255,255,0.02)'
+                      }}
+                    >
+                      <div style={{ fontWeight: 'bold', fontSize: '0.78rem', color: selectedMcpTool === t.id ? 'var(--color-primary)' : '#fff' }}>{t.title}</div>
+                      <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>{t.desc}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  className="vision-btn primary"
+                  onClick={executeMcpCall}
+                  disabled={isExecutingMcp}
+                  style={{ padding: '0.5rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}
+                >
+                  {isExecutingMcp ? <RefreshCw className="animate-spin" size={14} /> : <Play size={12} />} Run MCP Tool Call
+                </button>
+              </div>
+
+              {/* Right Column: Console & Response */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flex: 1 }}>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.3rem', fontWeight: 'bold', textTransform: 'uppercase' }}>
+                    <TerminalIcon size={12} /> Live MCP Terminal & Response
+                  </span>
+                  
+                  <div className="mcp-console-terminal" style={{ minHeight: '180px', flex: 1, fontSize: '0.7rem', color: '#1dd1a1' }}>
+                    {mcpLogs.length === 0 ? (
+                      <span style={{ color: 'rgba(255,255,255,0.2)' }}>Console waiting to execute tool calls...</span>
+                    ) : (
+                      mcpLogs.map((l, i) => <div key={i} style={{ marginBottom: '0.25rem', color: '#33ff33' }}>{l}</div>)
+                    )}
+                    
+                    {mcpOutput && (
+                      <pre style={{ marginTop: '0.75rem', background: '#000', padding: '0.5rem', borderRadius: '6px', color: '#fff', fontSize: '0.68rem', overflowX: 'auto', border: '1px solid rgba(255,255,255,0.1)' }}>
+                        <code>{mcpOutput}</code>
+                      </pre>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
