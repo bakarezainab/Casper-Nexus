@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { HelpCircle, ShieldCheck, Play, Terminal as TerminalIcon, RefreshCw, Database } from 'lucide-react'
+import { HelpCircle, ShieldCheck, Play, Terminal as TerminalIcon, RefreshCw, Database, ExternalLink } from 'lucide-react'
 import { getTestnetStatus, getPeers } from '../services/CasperService'
 
 interface AiToolkitTabProps {
@@ -239,6 +239,30 @@ This is an AI-discoverable documentation index parsed dynamically from https://o
             {section === 'odra' && 'Odra Framework'}
           </button>
         ))}
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '10px', padding: '0.75rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+          <span style={{ fontSize: '0.7rem', color: 'var(--color-primary)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Official Toolkit Docs</span>
+          <a href="https://www.casper.network/ai" target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.75rem', color: '#fff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+            <span>casper.network/ai</span>
+            <ExternalLink size={10} style={{ color: 'var(--color-accent)' }} />
+          </a>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+          <span style={{ fontSize: '0.7rem', color: 'var(--color-primary)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Casper MCP Specs</span>
+          <a href="https://docs.casper.network" target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.75rem', color: '#fff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+            <span>docs.casper.network</span>
+            <ExternalLink size={10} style={{ color: 'var(--color-accent)' }} />
+          </a>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+          <span style={{ fontSize: '0.7rem', color: 'var(--color-primary)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Odra Smart Contract IDE</span>
+          <a href="https://odra.dev" target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.75rem', color: '#fff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+            <span>odra.dev/llms.txt</span>
+            <ExternalLink size={10} style={{ color: 'var(--color-accent)' }} />
+          </a>
+        </div>
       </div>
 
       <div style={{ background: 'rgba(0,0,0,0.15)', border: '1px solid var(--border-glass)', borderRadius: '12px', padding: '1.25rem' }}>
