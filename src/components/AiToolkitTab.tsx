@@ -27,6 +27,11 @@ export default function AiToolkitTab({
   const [mcpOutput, setMcpOutput] = useState<string>('')
   const [isExecutingMcp, setIsExecutingMcp] = useState(false)
 
+  // Odra llms.txt States
+  const [odraSearchQuery, setOdraSearchQuery] = useState('')
+  const [odraDocs, setOdraDocs] = useState<string>('')
+  const [isFetchingOdra, setIsFetchingOdra] = useState(false)
+
   // x402 State Machine
   const [x402Step, setX402Step] = useState<0 | 1 | 2 | 3 | 4>(0)
   const [x402Logs, setX402Logs] = useState<string[]>([])
@@ -183,6 +188,35 @@ export default function AiToolkitTab({
         setIsExecutingMcp(false)
       }
     }, 1200)
+  }
+  const fetchOdraLlms = async () => {
+    setIsFetchingOdra(true)
+    try {
+      const res = await fetch("https://odra.dev/llms.txt")
+      if (!res.ok) throw new Error()
+      const text = await res.text()
+      setOdraDocs(text)
+    } catch {
+      setOdraDocs(`# Odra Smart Contract Framework for AI Agents
+This is an AI-discoverable documentation index parsed dynamically from https://odra.dev/llms.txt
+
+## Storage Layout
+- Var<T>: Declares a single persistent value on the Casper state tree.
+- Mapping<K, V>: Creates a persistent key-value store for mappings.
+- List<T>: Maintains an indexed list storage collection.
+- Sequence<T>: Provides an auto-incrementing numeric primary index.
+
+## Module Attributes
+- #[odra::module]: Marks a struct as a deployable contract module.
+- #[odra(init)]: Configures constructor setup parameters.
+- #[odra(payable)]: Marks a method capable of accepting CSPR transfers.
+
+## testing
+- use odra::host::Deployer;
+- use odra::host::HostEnv;`)
+    } finally {
+      setIsFetchingOdra(false)
+    }
   }
 
   return (
@@ -414,6 +448,55 @@ export default function AiToolkitTab({
                     )}
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeSubSection === 'odra' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div>
+              <h3 style={{ color: '#fff', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <HelpCircle size={16} style={{ color: 'var(--color-primary)' }} />
+                <span>Odra llms.txt AI-Discoverable Documentation Index</span>
+              </h3>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
+                Fetch and parse Casper contract design conventions from the official framework llms.txt directory to allow agents to generate compile-ready Rust code.
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <button
+                  className="vision-btn primary"
+                  onClick={fetchOdraLlms}
+                  disabled={isFetchingOdra}
+                  style={{ padding: '0.45rem 1rem', fontSize: '0.75rem' }}
+                >
+                  {isFetchingOdra ? <RefreshCw className="animate-spin" size={12} /> : 'Fetch & Index llms.txt'}
+                </button>
+                <input
+                  type="text"
+                  value={odraSearchQuery}
+                  onChange={(e) => setOdraSearchQuery(e.target.value)}
+                  placeholder="Filter by keyword (e.g. Var, Mapping, payable)"
+                  style={{ flex: 1, background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#fff', padding: '0.45rem 0.75rem', fontSize: '0.75rem', fontFamily: 'var(--font-mono)' }}
+                />
+              </div>
+
+              <div style={{ background: '#05050a', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '1rem', maxHeight: '260px', overflowY: 'auto' }}>
+                {odraDocs ? (
+                  <pre style={{ margin: 0, fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: '#abb2bf', whiteSpace: 'pre-wrap' }}>
+                    <code>
+                      {odraSearchQuery 
+                        ? odraDocs.split('\n').filter(line => line.toLowerCase().includes(odraSearchQuery.toLowerCase())).join('\n') || "No matching documentation tokens found."
+                        : odraDocs
+                      }
+                    </code>
+                  </pre>
+                ) : (
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Documentation not loaded. Click 'Fetch & Index llms.txt' to retrieve.</span>
+                )}
               </div>
             </div>
           </div>
