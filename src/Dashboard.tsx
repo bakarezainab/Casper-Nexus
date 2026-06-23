@@ -84,6 +84,15 @@ function Dashboard({ onBack }: DashboardProps) {
   const [selectedVisionAction, setSelectedVisionAction] = useState<'contract' | 'nft' | null>(null)
 
   const [logView, setLogView] = useState<'logs' | 'billing'>('logs')
+  const [subTab, setSubTab] = useState<'stake' | 'transfer' | 'x402'>('stake')
+  const [stakeInput, setStakeInput] = useState('100')
+  const [transferRecipient, setTransferRecipient] = useState('0202d9921473c9f28a7e08920199d9bc37f0bca2d89006e890a5a67c52b217a2db0f')
+  const [transferAmount, setTransferAmount] = useState('10')
+  const [x402DepositAmount, setX402DepositAmount] = useState('5')
+  const [isExecutingDeFi, setIsExecutingDeFi] = useState(false)
+  const [odraProfile, setOdraProfile] = useState<'debug' | 'release-wasm'>('debug')
+  const [ltoEnabled, setLtoEnabled] = useState(true)
+  const [odraVersion, setOdraVersion] = useState('1.0.0-rc')
   const [billingLedger, setBillingLedger] = useState<any[]>([
     { id: 'tx-101', action: 'Agent initialization handshake', cost: 0.10, hash: 'hash-f89a2b...', timestamp: '03:15:10' },
     { id: 'tx-102', action: 'Speech-to-text token translation', cost: 0.05, hash: 'hash-029cba...', timestamp: '03:16:45' },
@@ -573,6 +582,99 @@ pub struct AssetRegistered {
     }, 1500)
   }
 
+  const handleStaking = () => {
+    const amt = parseFloat(stakeInput)
+    if (isNaN(amt) || amt <= 0 || amt > walletBalance) {
+      addToast({ type: 'error', title: 'Invalid Amount', message: 'Amount exceeds available balance.' })
+      return
+    }
+    setIsExecutingDeFi(true)
+    addLog('system', `Preparing validator delegation contract transaction for ${amt} CSPR...`)
+    
+    setTimeout(async () => {
+      try {
+        const { deployHash: hash } = await submitDemoTransfer((amt * 1000000000).toString())
+        setWalletBalance(p => parseFloat((p - amt).toFixed(2)))
+        setStakedBalance(p => parseFloat((p + amt).toFixed(2)))
+        setIsExecutingDeFi(false)
+        addLog('casper', `Delegation successful. Hash: ${hash}`)
+        addToast({
+          type: 'success',
+          title: 'Delegation Active!',
+          message: `Staked ${amt} CSPR with active Casper validator node.`,
+          txHash: hash
+        })
+        speakText(`Successfully staked ${amt} CSPR on the Casper network.`)
+      } catch (err: any) {
+        setIsExecutingDeFi(false)
+        addToast({ type: 'error', title: 'Staking Failed', message: err.message })
+      }
+    }, 1500)
+  }
+
+  const handleTransfer = () => {
+    const amt = parseFloat(transferAmount)
+    if (isNaN(amt) || amt <= 0 || amt > walletBalance) {
+      addToast({ type: 'error', title: 'Invalid Amount', message: 'Transfer amount exceeds wallet balance.' })
+      return
+    }
+    if (!transferRecipient || transferRecipient.length < 32) {
+      addToast({ type: 'error', title: 'Invalid Recipient', message: 'Please enter a valid Casper public key.' })
+      return
+    }
+    setIsExecutingDeFi(true)
+    addLog('system', `Preparing CSPR native transfer of ${amt} CSPR to target recipient...`)
+    
+    setTimeout(async () => {
+      try {
+        const { deployHash: hash } = await submitDemoTransfer((amt * 1000000000).toString())
+        setWalletBalance(p => parseFloat((p - amt).toFixed(2)))
+        setIsExecutingDeFi(false)
+        addLog('casper', `Native CSPR transfer successful. Hash: ${hash}`)
+        addToast({
+          type: 'success',
+          title: 'Transfer Completed!',
+          message: `Sent ${amt} CSPR to ${shortHash(transferRecipient)}`,
+          txHash: hash
+        })
+        speakText(`Successfully transferred ${amt} CSPR.`)
+      } catch (err: any) {
+        setIsExecutingDeFi(false)
+        addToast({ type: 'error', title: 'Transfer Failed', message: err.message })
+      }
+    }, 1500)
+  }
+
+  const handleDepositX402 = () => {
+    const amt = parseFloat(x402DepositAmount)
+    if (isNaN(amt) || amt <= 0 || amt > walletBalance) {
+      addToast({ type: 'error', title: 'Invalid Amount', message: 'Deposit amount exceeds available wallet balance.' })
+      return
+    }
+    setIsExecutingDeFi(true)
+    addLog('system', `Funding x402 micropayment proxy channel with ${amt} CSPR...`)
+    
+    setTimeout(async () => {
+      try {
+        const { deployHash: hash } = await submitDemoTransfer((amt * 1000000000).toString())
+        setWalletBalance(p => parseFloat((p - amt).toFixed(2)))
+        setX402Balance(p => parseFloat((p + amt).toFixed(2)))
+        setIsExecutingDeFi(false)
+        addLog('x402', `Micropayment channel topped up with ${amt} CSPR. Hash: ${hash}`)
+        addToast({
+          type: 'success',
+          title: 'x402 Channel Funded!',
+          message: `Channel proxy balance increased by ${amt} CSPR.`,
+          txHash: hash
+        })
+        speakText(`Successfully funded micropayment channel.`)
+      } catch (err: any) {
+        setIsExecutingDeFi(false)
+        addToast({ type: 'error', title: 'Funding Failed', message: err.message })
+      }
+    }, 1500)
+  }
+
   // SVG circular calculations
   const totalBalance = walletBalance + stakedBalance + x402Balance
   const stakedPercent = (stakedBalance / totalBalance) * 100
@@ -879,18 +981,45 @@ pub struct AssetRegistered {
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', background: 'rgba(0,0,0,0.2)', padding: '0.75rem 1.25rem', borderRadius: '0', borderLeft: '1px solid var(--border-glass)', borderRight: '1px solid var(--border-glass)', fontSize: '0.8rem', fontFamily: 'var(--font-mono)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <span style={{ color: 'var(--text-muted)' }}>Odra Profile:</span>
-                  <select style={{ background: '#0a0a14', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '4px', padding: '2px 6px', fontSize: '0.75rem' }}>
-                    <option>debug</option>
-                    <option>release-wasm</option>
+                  <select 
+                    value={odraProfile} 
+                    onChange={(e) => { const v = e.target.value as any; setOdraProfile(v); addLog('system', `Compiler build profile updated to: ${v}`); }}
+                    style={{ background: '#0a0a14', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '4px', padding: '2px 6px', fontSize: '0.75rem' }}
+                  >
+                    <option value="debug">debug</option>
+                    <option value="release-wasm">release-wasm</option>
                   </select>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <span style={{ color: 'var(--text-muted)' }}>LTO:</span>
-                  <input type="checkbox" defaultChecked style={{ accentColor: 'var(--color-primary)' }} />
+                  <input 
+                    type="checkbox" 
+                    checked={ltoEnabled} 
+                    onChange={(e) => { const v = e.target.checked; setLtoEnabled(v); addLog('system', `Compiler LTO optimization flag set to: ${v}`); }}
+                    style={{ accentColor: 'var(--color-primary)' }} 
+                  />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>Framework:</span>
+                  <select 
+                    value={odraVersion} 
+                    onChange={(e) => { setOdraVersion(e.target.value); addLog('system', `Targeted Odra Framework updated to version ${e.target.value}`); }} 
+                    style={{ background: '#0a0a14', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '4px', padding: '2px 6px', fontSize: '0.75rem' }}
+                  >
+                    <option value="0.8.0">Odra 0.8.0</option>
+                    <option value="0.9.0">Odra 0.9.0</option>
+                    <option value="1.0.0-rc">Odra 1.0.0-rc</option>
+                  </select>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <span style={{ color: 'var(--text-muted)' }}>Target:</span>
-                  <span style={{ color: 'var(--color-accent)' }}>wasm32-unknown-unknown</span></div><div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><span style={{ color: 'var(--text-muted)' }}>Est. Gas:</span><span style={{ color: '#ff9f43', fontWeight: 700 }}>~1.2B motes</span>
+                  <span style={{ color: 'var(--color-accent)' }}>wasm32-unknown-unknown</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>Est. Gas:</span>
+                  <span style={{ color: '#ff9f43', fontWeight: 700 }}>
+                    ~{odraProfile === 'release-wasm' ? (ltoEnabled ? '900M' : '1.1B') : '1.3B'} motes
+                  </span>
                 </div>
               </div>
               <div className="code-preview-container">
@@ -985,35 +1114,106 @@ pub struct AssetRegistered {
               <span>{x402Balance.toFixed(2)} CSPR</span>
             </div>
 
-            {/* Mock DeFi & Staking Volume Chart */}
+            {/* Interactive DeFi Operations Panel */}
             <div style={{ marginTop: '0.75rem', borderTop: '1px dashed rgba(255,255,255,0.06)', paddingTop: '0.75rem' }}>
-              <div className="info-row" style={{ marginBottom: '0.5rem' }}>
-                <span>Trading Volume (Trend)</span>
-                <span style={{ color: 'var(--color-accent)', fontSize: '0.75rem', fontFamily: 'var(--font-mono)' }}>+12.4% block change</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <span style={{ fontWeight: 700, fontSize: '0.78rem', color: '#fff' }}>Casper DeFi Operations</span>
+                <div style={{ display: 'flex', gap: '0.2rem' }}>
+                  {['stake', 'transfer', 'x402'].map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setSubTab(tab as any)}
+                      style={{
+                        background: subTab === tab ? 'rgba(0, 210, 211, 0.15)' : 'rgba(255,255,255,0.02)',
+                        border: `1px solid ${subTab === tab ? 'var(--color-accent)' : 'rgba(255,255,255,0.08)'}`,
+                        color: subTab === tab ? '#fff' : 'var(--text-muted)',
+                        padding: '0.15rem 0.4rem',
+                        fontSize: '0.65rem',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        textTransform: 'capitalize'
+                      }}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end', height: '54px', padding: '4px 0' }}>
-                {[30, 45, 25, 60, 55, 75, 40].map((h, i) => (
-                  <div 
-                    key={i} 
-                    style={{ 
-                      flex: 1, 
-                      height: `${h}%`, 
-                      background: 'linear-gradient(to top, var(--color-secondary), var(--color-accent))', 
-                      borderRadius: '3px',
-                      boxShadow: '0 0 8px rgba(0, 210, 211, 0.2)',
-                      transition: 'height 0.3s ease'
-                    }}
-                  ></div>
-                ))}
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginTop: '4px' }}>
-                <span>B-10</span>
-                <span>B-8</span>
-                <span>B-6</span>
-                <span>B-4</span>
-                <span>B-2</span>
-                <span>Live</span>
-              </div>
+
+              {subTab === 'stake' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                  <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    <input
+                      type="number"
+                      value={stakeInput}
+                      onChange={(e) => setStakeInput(e.target.value)}
+                      placeholder="Amount to Stake"
+                      style={{ flex: 1, background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#fff', padding: '0.35rem 0.5rem', fontSize: '0.75rem', fontFamily: 'var(--font-mono)' }}
+                    />
+                    <button
+                      className="vision-btn primary"
+                      onClick={handleStaking}
+                      disabled={isExecutingDeFi}
+                      style={{ padding: '0.35rem 0.8rem', fontSize: '0.75rem' }}
+                    >
+                      {isExecutingDeFi ? <RefreshCw className="animate-spin" size={10} /> : 'Delegate'}
+                    </button>
+                  </div>
+                  <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)' }}>* Active validator: node-1.testnet.casper.network. Reward APY: ~12.8%.</span>
+                </div>
+              )}
+
+              {subTab === 'transfer' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                  <input
+                    type="text"
+                    value={transferRecipient}
+                    onChange={(e) => setTransferRecipient(e.target.value)}
+                    placeholder="Recipient Public Key"
+                    style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#fff', padding: '0.35rem 0.5rem', fontSize: '0.75rem', fontFamily: 'var(--font-mono)' }}
+                  />
+                  <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    <input
+                      type="number"
+                      value={transferAmount}
+                      onChange={(e) => setTransferAmount(e.target.value)}
+                      placeholder="CSPR Amount"
+                      style={{ flex: 1, background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#fff', padding: '0.35rem 0.5rem', fontSize: '0.75rem', fontFamily: 'var(--font-mono)' }}
+                    />
+                    <button
+                      className="vision-btn primary"
+                      onClick={handleTransfer}
+                      disabled={isExecutingDeFi}
+                      style={{ padding: '0.35rem 0.8rem', fontSize: '0.75rem' }}
+                    >
+                      {isExecutingDeFi ? <RefreshCw className="animate-spin" size={10} /> : 'Send CSPR'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {subTab === 'x402' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                  <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    <input
+                      type="number"
+                      value={x402DepositAmount}
+                      onChange={(e) => setX402DepositAmount(e.target.value)}
+                      placeholder="Deposit CSPR"
+                      style={{ flex: 1, background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#fff', padding: '0.35rem 0.5rem', fontSize: '0.75rem', fontFamily: 'var(--font-mono)' }}
+                    />
+                    <button
+                      className="vision-btn primary"
+                      onClick={handleDepositX402}
+                      disabled={isExecutingDeFi}
+                      style={{ padding: '0.35rem 0.8rem', fontSize: '0.75rem' }}
+                    >
+                      {isExecutingDeFi ? <RefreshCw className="animate-spin" size={10} /> : 'Fund Channel'}
+                    </button>
+                  </div>
+                  <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)' }}>* Fund your automated agent micropayments channel. Deducts 0.05 CSPR per LLM query.</span>
+                </div>
+              )}
             </div>
 
             {/* Live Block Explorer — Real Casper Testnet RPC */}
