@@ -960,12 +960,28 @@ pub struct AssetRegistered {
                   </div>
 
                   <button 
-                    className="vision-btn primary" 
+                    className={`vision-btn primary ${selectedVisionAction ? 'pulse-neon-fast' : ''}`} 
                     onClick={scanObject}
                     disabled={isScanning || !selectedVisionAction}
-                    style={{ marginTop: '0.5rem' }}
+                    style={{ 
+                      marginTop: '0.75rem', 
+                      width: '100%', 
+                      padding: '0.65rem 1rem', 
+                      fontSize: '0.82rem', 
+                      fontWeight: 700, 
+                      letterSpacing: '0.05em',
+                      textTransform: 'uppercase',
+                      boxShadow: selectedVisionAction ? '0 0 12px var(--color-primary)' : 'none',
+                      transition: 'all 0.3s ease'
+                    }}
                   >
-                    {isScanning ? <RefreshCw className="animate-spin" size={16} /> : 'Execute Scanner Scan'}
+                    {isScanning ? (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
+                        <RefreshCw className="animate-spin" size={14} /> Running Neural Inference...
+                      </div>
+                    ) : (
+                      'Scan Object / Blueprint'
+                    )}
                   </button>
                 </div>
               </div>
