@@ -7,9 +7,13 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# Monorepo Build Targets
+**/node_modules
+**/dist
+**/dist-ssr
+contract/target
+contract/wasm
+.vite
 *.local
 
 # Editor directories and files
