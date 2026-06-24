@@ -15,9 +15,11 @@ import './landing.css'
 
 interface LandingPageProps {
   onLaunchApp: () => void
+  connectedWallet: any
+  setConnectedWallet: (wallet: any) => void
 }
 
-export default function LandingPage({ onLaunchApp }: LandingPageProps) {
+export default function LandingPage({ onLaunchApp, connectedWallet, setConnectedWallet }: LandingPageProps) {
   const scrollToFeatures = () => {
     document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })
   }
@@ -39,7 +41,11 @@ export default function LandingPage({ onLaunchApp }: LandingPageProps) {
         </svg>
       </div>
 
-      <Navbar onLaunchApp={onLaunchApp} />
+      <Navbar 
+        onLaunchApp={onLaunchApp} 
+        connectedWallet={connectedWallet}
+        setConnectedWallet={setConnectedWallet}
+      />
 
       {/* Live network metrics ticker directly below navbar */}
       <div style={{ marginTop: '72px', position: 'relative', zIndex: 5 }}>

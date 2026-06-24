@@ -5,6 +5,8 @@ import WalletConnectModal from './WalletConnectModal'
 
 interface NavbarProps {
   onLaunchApp: () => void
+  connectedWallet: any
+  setConnectedWallet: (wallet: any) => void
 }
 
 const DEMO_ACCOUNT = {
@@ -14,12 +16,12 @@ const DEMO_ACCOUNT = {
   staked: '1,200.00',
 }
 
-export default function Navbar({ onLaunchApp }: NavbarProps) {
+export default function Navbar({ onLaunchApp, connectedWallet, setConnectedWallet }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [walletOpen, setWalletOpen] = useState(false)
-  const [isConnected, setIsConnected] = useState(false)
-  const [connectedAccount, setConnectedAccount] = useState<typeof DEMO_ACCOUNT | undefined>()
+  const isConnected = !!connectedWallet
+  const connectedAccount = connectedWallet || undefined
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40)
@@ -33,8 +35,7 @@ export default function Navbar({ onLaunchApp }: NavbarProps) {
   }
 
   const handleConnect = (account: typeof DEMO_ACCOUNT) => {
-    setConnectedAccount(account)
-    setIsConnected(true)
+    setConnectedWallet(account)
   }
 
   return (

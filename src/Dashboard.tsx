@@ -23,9 +23,12 @@ import './App.css'
 import { getRecentBlocks, submitDemoTransfer, getTestnetStatus, shortHash, formatTimestamp, TESTNET_EXPLORER, type BlockInfo as RpcBlock } from './services/CasperService'
 import { ToastContainer, useToasts } from './components/ToastNotification'
 import AiToolkitTab from './components/AiToolkitTab'
+import WalletConnectModal from './components/WalletConnectModal'
 
 interface DashboardProps {
   onBack: () => void
+  connectedWallet: any
+  setConnectedWallet: (wallet: any) => void
 }
 
 interface Transcript {
@@ -51,11 +54,12 @@ interface BoundingBox {
   height: number
 }
 
-function Dashboard({ onBack }: DashboardProps) {
+function Dashboard({ onBack, connectedWallet, setConnectedWallet }: DashboardProps) {
   const [activeTab, setActiveTab] = useState<'voice' | 'vision' | 'ide' | 'ai-toolkit'>('voice')
   const [isListening, setIsListening] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
+  const [walletModalOpen, setWalletModalOpen] = useState(false)
   
   // Wallet States
   const [walletBalance, setWalletBalance] = useState(3450.25)
@@ -80,6 +84,7 @@ function Dashboard({ onBack }: DashboardProps) {
 
   // Vision States
   const [isCameraActive, setIsCameraActive] = useState(false)
+  const [hasCameraStream, setHasCameraStream] = useState(false)
   const [isScanning, setIsScanning] = useState(false)
   const [detectedObjects, setDetectedObjects] = useState<BoundingBox[]>([])
   const [selectedVisionAction, setSelectedVisionAction] = useState<'contract' | 'nft' | null>(null)
@@ -177,6 +182,16 @@ pub struct AssetRegistered {
   const speechRecognitionRef = useRef<any>(null)
   const logsEndRef = useRef<HTMLDivElement>(null)
   const transcriptEndRef = useRef<HTMLDivElement>(null)
+
+  // Wallet synchronization
+  useEffect(() => {
+    if (connectedWallet) {
+      const cleanBal = parseFloat(connectedWallet.balance.replace(/,/g, ''))
+      const cleanStake = parseFloat(connectedWallet.staked.replace(/,/g, ''))
+      if (!isNaN(cleanBal)) setWalletBalance(cleanBal)
+      if (!isNaN(cleanStake)) setStakedBalance(cleanStake)
+    }
+  }, [connectedWallet])
 
   // Scroll controls
   useEffect(() => {
@@ -412,15 +427,18 @@ pub struct AssetRegistered {
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
       if (videoRef.current) {
         videoRef.current.srcObject = stream
+        setHasCameraStream(true)
         addLog('system', 'Camera stream integrated.')
       }
     } catch (err) {
+      setHasCameraStream(false)
       addLog('system', 'Webcam preview blocked. Loading automated simulator viewport.')
     }
   }
 
   const stopCamera = () => {
     setIsCameraActive(false)
+    setHasCameraStream(false)
     setDetectedObjects([])
     if (videoRef.current && videoRef.current.srcObject) {
       const stream = videoRef.current.srcObject as MediaStream
@@ -843,7 +861,35 @@ pub struct AssetRegistered {
               <div className="vision-grid">
                 <div className="camera-viewport">
                   {isCameraActive ? (
-                    <video ref={videoRef} autoPlay playsInline className="camera-video"></video>
+                    hasCameraStream ? (
+                      <video ref={videoRef} autoPlay playsInline className="camera-video"></video>
+                    ) : (
+                      <div className="camera-placeholder" style={{ position: 'relative', background: '#030308', border: '1px solid rgba(255,71,87,0.15)' }}>
+                        <svg width="100%" height="100%" viewBox="0 0 100 100" style={{ position: 'absolute', inset: 0, opacity: 0.15 }}>
+                          <defs>
+                            <radialGradient id="radar-glow" cx="50%" cy="50%" r="50%">
+                              <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.3" />
+                              <stop offset="100%" stopColor="transparent" stopOpacity="0" />
+                            </radialGradient>
+                          </defs>
+                          <circle cx="50" cy="50" r="50" fill="url(#radar-glow)" />
+                          <line x1="0" y1="50" x2="100" y2="50" stroke="rgba(255,255,255,0.08)" strokeWidth="0.2" />
+                          <line x1="50" y1="0" x2="50" y2="100" stroke="rgba(255,255,255,0.08)" strokeWidth="0.2" />
+                        </svg>
+                        
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.55rem', zIndex: 10, textAlign: 'center', padding: '0 2rem' }}>
+                          <div className="pulse-neon-fast" style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(255,71,87,0.1)', border: '1px solid var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.4rem auto' }}>
+                            <Cpu size={20} className="animate-spin" style={{ color: 'var(--color-primary)' }} />
+                          </div>
+                          <span style={{ fontSize: '0.78rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#fff', fontWeight: 'bold' }}>
+                            {selectedVisionAction === 'contract' ? 'Scanning Blueprint Design...' : 'Scanning RWA Asset...'}
+                          </span>
+                          <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
+                            Click "Scan Object / Blueprint" on the right sidebar to run neural inference.
+                          </span>
+                        </div>
+                      </div>
+                    )
                   ) : (
                     <div className="camera-placeholder" style={{ position: 'relative' }}>
                       <svg width="180" height="180" viewBox="0 0 100 100" style={{ animation: 'spinBorder 15s linear infinite', opacity: 0.25, position: 'absolute' }}>
@@ -1120,6 +1166,30 @@ pub struct AssetRegistered {
               </div>
             </div>
 
+            {connectedWallet ? (
+              <div style={{ background: 'rgba(29,209,161,0.05)', border: '1px solid rgba(29,209,161,0.15)', borderRadius: '8px', padding: '0.5rem', marginBottom: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                <span style={{ fontSize: '0.62rem', color: '#1dd1a1', fontWeight: 'bold', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>Connected Casper Wallet</span>
+                <span style={{ fontSize: '0.72rem', color: '#fff', fontFamily: 'var(--font-mono)', wordBreak: 'break-all' }}>{connectedWallet.publicKey}</span>
+                <button 
+                  onClick={() => setConnectedWallet(null)} 
+                  style={{ alignSelf: 'flex-end', background: 'none', border: 'none', color: '#ff4757', fontSize: '0.65rem', cursor: 'pointer', padding: 0 }}
+                >
+                  Disconnect
+                </button>
+              </div>
+            ) : (
+              <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '0.6rem', marginBottom: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Using Casper Sandbox Mode.</span>
+                <button 
+                  className="vision-btn primary"
+                  onClick={() => setWalletModalOpen(true)}
+                  style={{ padding: '0.35rem 0.6rem', fontSize: '0.72rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem' }}
+                >
+                  <Wallet size={12} /> Connect Casper Wallet
+                </button>
+              </div>
+            )}
+
             <div className="info-row">
               <span>Available Wallet Balance</span>
               <span>{walletBalance.toLocaleString()} CSPR</span>
@@ -1240,8 +1310,8 @@ pub struct AssetRegistered {
               <div className="info-row" style={{ marginBottom: '0.5rem' }}>
                 <span style={{ fontWeight: 700, fontSize: '0.78rem' }}>Live Casper Testnet Blocks</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: testnetConnected ? '#1dd1a1' : '#ff4757', boxShadow: testnetConnected ? '0 0 6px #1dd1a1' : '0 0 6px #ff4757', display: 'inline-block', animation: 'pulseNeon 1.5s infinite' }} />
-                  <span style={{ fontSize: '0.68rem', color: testnetConnected ? '#1dd1a1' : '#ff4757', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>{testnetConnected ? 'LIVE' : 'SYNCING'}</span>
+                  <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: testnetConnected ? '#1dd1a1' : 'var(--color-primary)', boxShadow: testnetConnected ? '0 0 6px #1dd1a1' : '0 0 6px var(--color-primary)', display: 'inline-block', animation: 'pulseNeon 1.5s infinite' }} />
+                  <span style={{ fontSize: '0.68rem', color: testnetConnected ? '#1dd1a1' : 'var(--color-primary)', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>{testnetConnected ? 'LIVE' : 'SANDBOX'}</span>
                 </div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
@@ -1305,6 +1375,14 @@ pub struct AssetRegistered {
 
       {/* Global Toast Notifications */}
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
+
+      <WalletConnectModal 
+        isOpen={walletModalOpen}
+        onClose={() => setWalletModalOpen(false)}
+        onConnect={(wallet) => setConnectedWallet(wallet)}
+        isConnected={!!connectedWallet}
+        connectedAccount={connectedWallet || undefined}
+      />
     </div>
   )
 }

@@ -57,7 +57,7 @@ export default function TestnetStatusBadge() {
       <span>
         {status.isConnected
           ? `Testnet Live · #${status.blockHeight.toLocaleString()}${peersCount > 0 ? ` · ${peersCount} peers` : ''}`
-          : 'Connecting...'}
+          : 'Testnet Offline · Sandbox'}
       </span>
     </div>
   )
