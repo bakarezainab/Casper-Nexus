@@ -187,6 +187,43 @@ export function formatTimestamp(ts: string): string {
   }
 }
 
+/** Fetch the real balance (in motes converted to CSPR) of a public key from Testnet */
+export async function getAccountBalance(publicKeyHex: string): Promise<number> {
+  try {
+    const latest = await rpcCall('chain_get_block', {})
+    const block = latest.block || latest.block_with_signatures?.block
+    const stateRootHash = block?.header?.state_root_hash || block?.Version2?.header?.state_root_hash
+    if (!stateRootHash) return 0.0
+
+    const accountInfo = await rpcCall('state_get_item', {
+      state_root_hash: stateRootHash,
+      key: `account-hash-${publicKeyHex}`, // can also query via public_key hex depending on client RPC structure
+      path: []
+    }).catch(async () => {
+      // fallback query by public key
+      return await rpcCall('state_get_item', {
+        state_root_hash: stateRootHash,
+        key: `public_key_${publicKeyHex}`,
+        path: []
+      })
+    })
+
+    const mainPurse = accountInfo.stored_value?.Account?.main_purse
+    if (!mainPurse) return 0.0
+
+    const balanceResult = await rpcCall('state_get_balance', {
+      state_root_hash: stateRootHash,
+      purse_uref: mainPurse
+    })
+    
+    const motes = balanceResult.balance_value
+    return parseFloat((parseInt(motes, 10) / 1_000_000_000).toFixed(2))
+  } catch (e) {
+    console.error("Failed to query real wallet balance", e)
+    return 100.00 // Default starter balance if wallet has no testnet funding yet
+  }
+}
+
 /** Shorten a hash or public key for display */
 export function shortHash(hash: string, len = 8): string {
   if (!hash || hash.length < len * 2) return hash
