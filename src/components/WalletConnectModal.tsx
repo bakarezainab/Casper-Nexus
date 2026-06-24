@@ -37,31 +37,55 @@ export default function WalletConnectModal({ isOpen, onClose, onConnect, isConne
         const isConnected = await provider.requestConnection()
         if (isConnected) {
           const activeKey = await provider.getActivePublicKey()
-          const balance = await getAccountBalance(activeKey)
+          
+          // Connect instantly with a loading balance state
           onConnect({
             publicKey: activeKey,
             accountHash: `account-hash-${activeKey.substring(0, 16)}...`,
-            balance: balance.toLocaleString(),
+            balance: '0.00',
             staked: '0.00',
           })
           onClose()
+
+          // Fetch actual balance asynchronously in the background
+          getAccountBalance(activeKey).then(balanceVal => {
+            onConnect({
+              publicKey: activeKey,
+              accountHash: `account-hash-${activeKey.substring(0, 16)}...`,
+              balance: balanceVal.toLocaleString(),
+              staked: '0.00',
+            })
+          }).catch(() => {})
+          
           return
         }
       } else if (casperSignerHelper) {
         await casperSignerHelper.requestConnection()
         const activeKey = await casperSignerHelper.getActivePublicKey()
-        const balance = await getAccountBalance(activeKey)
+        
+        // Connect instantly with a loading balance state
         onConnect({
           publicKey: activeKey,
           accountHash: `account-hash-${activeKey.substring(0, 16)}...`,
-          balance: balance.toLocaleString(),
+          balance: '0.00',
           staked: '0.00',
         })
         onClose()
+
+        // Fetch actual balance asynchronously in the background
+        getAccountBalance(activeKey).then(balanceVal => {
+          onConnect({
+            publicKey: activeKey,
+            accountHash: `account-hash-${activeKey.substring(0, 16)}...`,
+            balance: balanceVal.toLocaleString(),
+            staked: '0.00',
+          })
+        }).catch(() => {})
+        
         return
       } else {
         // Fallback to pre-loaded account
-        await new Promise(r => setTimeout(r, 1000))
+        await new Promise(r => setTimeout(r, 600))
         onConnect(DEMO_ACCOUNT)
         onClose()
       }
