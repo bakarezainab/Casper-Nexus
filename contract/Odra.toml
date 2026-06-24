@@ -1,0 +1,8 @@
+[definition]
+schema = "casper_nexus_contract"
+
+[backend]
+default = "casper"
+
+[backends.casper]
+odra-casper = { version = "1.0.0-rc" }
